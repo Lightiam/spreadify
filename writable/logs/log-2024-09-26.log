@@ -1,0 +1,440 @@
+ERROR - 2024-09-26 10:27:53 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: character varying = boolean
+LINE 3: WHERE &quot;code&quot; = FALSE
+                     ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1441): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Helpers/Language_helper.php(107): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(5): __()
+#8 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Views/topbar.php(8): _e()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(210): include('...')
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(213): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#11 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Common.php(1089): CodeIgniter\View\View->render()
+#12 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Models/ProfileModel.php(23): view()
+#13 /home/ubuntu/stackposts/stackposts_main/inc/core/Settings/Filters/beforeFilter.php(83): Core\Profile\Models\ProfileModel->block_topbar()
+#14 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#15 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#16 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#17 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#18 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#19 {main}
+CRITICAL - 2024-09-26 10:27:53 --> pg_query(): Query failed: ERROR:  operator does not exist: character varying = boolean
+LINE 3: WHERE &quot;code&quot; = FALSE
+                     ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1441): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Helpers/Language_helper.php(107): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(5): __()
+#8 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Views/topbar.php(8): _e()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(210): include('...')
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(213): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#11 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Common.php(1089): CodeIgniter\View\View->render()
+#12 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Models/ProfileModel.php(23): view()
+#13 /home/ubuntu/stackposts/stackposts_main/inc/core/Settings/Filters/beforeFilter.php(83): Core\Profile\Models\ProfileModel->block_topbar()
+#14 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#15 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#16 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#17 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#18 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#19 {main}
+ERROR - 2024-09-26 10:31:00 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;is_default&quot; = 1
+                           ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1444): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Filters/beforeFilter.php(17): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#12 {main}
+CRITICAL - 2024-09-26 10:31:00 --> pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;is_default&quot; = 1
+                           ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1444): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Filters/beforeFilter.php(17): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#12 {main}
+ERROR - 2024-09-26 10:32:48 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: character varying = boolean
+LINE 3: WHERE &quot;code&quot; = FALSE
+                     ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1442): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Helpers/Language_helper.php(107): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(5): __()
+#8 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Views/topbar.php(8): _e()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(210): include('...')
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(213): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#11 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Common.php(1089): CodeIgniter\View\View->render()
+#12 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Models/ProfileModel.php(23): view()
+#13 /home/ubuntu/stackposts/stackposts_main/inc/core/Settings/Filters/beforeFilter.php(83): Core\Profile\Models\ProfileModel->block_topbar()
+#14 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#15 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#16 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#17 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#18 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#19 {main}
+CRITICAL - 2024-09-26 10:32:48 --> pg_query(): Query failed: ERROR:  operator does not exist: character varying = boolean
+LINE 3: WHERE &quot;code&quot; = FALSE
+                     ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1442): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Helpers/Language_helper.php(107): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(5): __()
+#8 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Views/topbar.php(8): _e()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(210): include('...')
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(213): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#11 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Common.php(1089): CodeIgniter\View\View->render()
+#12 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Models/ProfileModel.php(23): view()
+#13 /home/ubuntu/stackposts/stackposts_main/inc/core/Settings/Filters/beforeFilter.php(83): Core\Profile\Models\ProfileModel->block_topbar()
+#14 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#15 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#16 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#17 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#18 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#19 {main}
+ERROR - 2024-09-26 10:33:45 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;is_default&quot; = 1
+                           ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1448): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Helpers/Language_helper.php(109): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(5): __()
+#8 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Views/topbar.php(8): _e()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(210): include('...')
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(213): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#11 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Common.php(1089): CodeIgniter\View\View->render()
+#12 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Models/ProfileModel.php(23): view()
+#13 /home/ubuntu/stackposts/stackposts_main/inc/core/Settings/Filters/beforeFilter.php(83): Core\Profile\Models\ProfileModel->block_topbar()
+#14 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#15 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#16 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#17 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#18 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#19 {main}
+CRITICAL - 2024-09-26 10:33:45 --> pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;is_default&quot; = 1
+                           ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1448): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Language/Helpers/Language_helper.php(109): db_get()
+#7 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(5): __()
+#8 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Views/topbar.php(8): _e()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(210): include('...')
+#10 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/View/View.php(213): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+#11 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Common.php(1089): CodeIgniter\View\View->render()
+#12 /home/ubuntu/stackposts/stackposts_main/inc/core/Profile/Models/ProfileModel.php(23): view()
+#13 /home/ubuntu/stackposts/stackposts_main/inc/core/Settings/Filters/beforeFilter.php(83): Core\Profile\Models\ProfileModel->block_topbar()
+#14 /home/ubuntu/stackposts/stackposts_main/app/Filters/MainFilter.php(50): include_once('...')
+#15 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Filters/Filters.php(173): App\Filters\MainFilter->before()
+#16 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(393): CodeIgniter\Filters\Filters->run()
+#17 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#18 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#19 {main}
+ERROR - 2024-09-26 10:34:17 --> ErrorException: pg_query(): Query failed: ERROR:  relation &quot;sp_faqs&quot; does not exist
+LINE 2: FROM &quot;sp_faqs&quot;
+             ^ in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(32): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:34:17 --> pg_query(): Query failed: ERROR:  relation &quot;sp_faqs&quot; does not exist
+LINE 2: FROM &quot;sp_faqs&quot;
+             ^
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(32): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+ERROR - 2024-09-26 10:36:43 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(32): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:36:43 --> pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(32): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+ERROR - 2024-09-26 10:37:20 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(32): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:37:20 --> pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(32): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+ERROR - 2024-09-26 10:39:03 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:39:03 --> pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+ERROR - 2024-09-26 10:39:41 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:39:41 --> pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+ERROR - 2024-09-26 10:42:35 --> ErrorException: pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts. in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:42:35 --> pg_query(): Query failed: ERROR:  operator does not exist: boolean = integer
+LINE 3: WHERE &quot;status&quot; = 1
+                       ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+ERROR - 2024-09-26 10:43:04 --> ErrorException: pg_query(): Query failed: ERROR:  column &quot;type&quot; does not exist
+LINE 4: AND &quot;type&quot; = 2
+            ^ in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:43:04 --> pg_query(): Query failed: ERROR:  column &quot;type&quot; does not exist
+LINE 4: AND &quot;type&quot; = 2
+            ^
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+ERROR - 2024-09-26 10:48:17 --> ErrorException: pg_query(): Query failed: ERROR:  column &quot;position&quot; does not exist
+LINE 4: ORDER BY &quot;position&quot; ASC
+                 ^ in /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php:135
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-09-26 10:48:17 --> pg_query(): Query failed: ERROR:  column &quot;position&quot; does not exist
+LINE 4: ORDER BY &quot;position&quot; ASC
+                 ^
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/Postgre/Connection.php(135): pg_query()
+#2 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(670): CodeIgniter\Database\Postgre\Connection->execute()
+#3 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseConnection.php(598): CodeIgniter\Database\BaseConnection->simpleQuery()
+#4 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1455): CodeIgniter\Database\BaseConnection->query()
+#5 /home/ubuntu/stackposts/stackposts_main/app/Helpers/Common_helper.php(1406): CodeIgniter\Database\BaseBuilder->get()
+#6 /home/ubuntu/stackposts/stackposts_main/inc/core/Home/Controllers/Home.php(37): db_fetch()
+#7 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(832): Core\Home\Controllers\Home->index()
+#8 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(419): CodeIgniter\CodeIgniter->runController()
+#9 /home/ubuntu/stackposts/stackposts_main/vendor/codeigniter4/framework/system/CodeIgniter.php(326): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/ubuntu/stackposts/stackposts_main/index.php(44): CodeIgniter\CodeIgniter->run()
+#11 {main}

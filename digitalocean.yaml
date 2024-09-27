@@ -1,0 +1,38 @@
+name: spreadify-app
+region: nyc
+services:
+  - name: web
+    environment_slug: php
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    git:
+      repo_clone_url: https://github.com/your-repo/spreadify.git
+      branch: main
+    envs:
+      - key: CI_ENVIRONMENT
+        value: production
+      - key: app.baseURL
+        value: ${APP_URL}
+      - key: database.default.hostname
+        value: ${DB_HOST}
+      - key: database.default.database
+        value: ${DB_NAME}
+      - key: database.default.username
+        value: ${DB_USER}
+      - key: database.default.password
+        value: ${DB_PASSWORD}
+      - key: database.default.DBDriver
+        value: Postgre
+    build_command: composer install --no-dev
+    run_command: php spark serve --port ${PORT} --host 0.0.0.0
+    http_port: 8080
+    routes:
+      - path: /
+    healthcheck:
+      http_path: /health
+databases:
+  - engine: PG
+    name: spreadify-db
+    num_nodes: 1
+    size: db-s-dev-database
+    version: "12"

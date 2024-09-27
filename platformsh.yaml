@@ -1,0 +1,66 @@
+# .platform.app.yaml
+
+# The name of this app. Must be unique within a project.
+name: spreadify
+
+# The runtime the application uses.
+type: php:8.1
+
+# The relationships of the application with services or other applications.
+relationships:
+    database: "db:postgresql"
+
+# The configuration of app when it is exposed to the web.
+web:
+    locations:
+        "/":
+            root: "public"
+            index:
+                - index.php
+            passthru: "/index.php"
+
+# The size of the persistent disk of the application (in MB).
+disk: 2048
+
+# The mounts that will be performed when the package is deployed.
+mounts:
+    "/var":
+        source: local
+        source_path: "var"
+    "/writable":
+        source: local
+        source_path: "writable"
+
+# The hooks executed at various points in the lifecycle of the application.
+hooks:
+    build: |
+        set -e
+        composer install --no-dev --optimize-autoloader
+    deploy: |
+        set -e
+        php spark migrate --force
+
+# The configuration of scheduled tasks.
+crons:
+    renewcert:
+        spec: '0 0 1 * *'
+        cmd: |
+            if [ "$PLATFORM_BRANCH" = master ]; then
+                platform domain:update --cert --yes
+            fi
+
+# The configuration of environment variables.
+variables:
+    php:
+        display_errors: Off
+        memory_limit: 256M
+
+# The configuration of environment variables.
+env:
+    CI_ENVIRONMENT: production
+
+# The services of the project.
+services:
+    db:
+        type: postgresql:12
+        disk: 1024
