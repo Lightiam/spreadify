@@ -1,22 +1,40 @@
 name: Deploy to GitHub Pages
+
 on:
   push:
-    branches: ["gh-pages"]
+    branches: [ initial-commit ]
   workflow_dispatch:
+
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm install
+      - name: Configure Vite
+        run: |
+          echo 'import { defineConfig } from "vite"
+          import react from "@vitejs/plugin-react"
+          
+          export default defineConfig({
+            plugins: [react()],
+            base: "/spreadify/",
+          })' > vite.config.ts
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+          clean: true
