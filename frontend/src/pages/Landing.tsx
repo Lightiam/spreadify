@@ -80,65 +80,20 @@ export function LandingPage() {
             </div>
           </div>
 
-          {/* App mockup */}
+          {/* Video showcase */}
           <div className="hidden lg:block relative">
             <div className="relative z-10">
-              <div className="w-full max-w-[400px] mx-auto aspect-[9/16] bg-gradient-to-br from-purple-600 to-pink-600 rounded-[2rem] shadow-2xl p-4">
-                <div className="w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
-                  {/* Streaming interface mockup */}
-                  <div className="p-4 space-y-4">
-                    {/* Stream controls bar */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex space-x-2">
-                        <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
-                          <div className="w-3 h-3 bg-white rounded-sm"></div>
-                        </div>
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                          <div className="w-3 h-3 bg-gray-400"></div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="h-2 w-2 bg-red-500 rounded-full"></div>
-                        <div className="text-xs text-red-500 font-medium">LIVE</div>
-                      </div>
-                    </div>
-                    
-                    {/* Video grid */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="aspect-video bg-gray-800 rounded-lg relative">
-                        <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Host</div>
-                      </div>
-                      <div className="aspect-video bg-gray-700 rounded-lg relative">
-                        <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Guest 1</div>
-                      </div>
-                      <div className="aspect-video bg-gray-700 rounded-lg relative">
-                        <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Guest 2</div>
-                      </div>
-                      <div className="aspect-video bg-gray-700 rounded-lg relative">
-                        <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">Guest 3</div>
-                      </div>
-                    </div>
-                    
-                    {/* Chat and platform indicators */}
-                    <div className="flex justify-between items-center">
-                      <div className="flex space-x-2">
-                        <div className="w-6 h-6 bg-red-100 rounded flex items-center justify-center">
-                          <div className="w-3 h-3 bg-red-500"></div>
-                        </div>
-                        <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
-                          <div className="w-3 h-3 bg-purple-500"></div>
-                        </div>
-                        <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-                          <div className="w-3 h-3 bg-blue-500"></div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 bg-gray-200 rounded"></div>
-                        <div className="text-xs text-gray-500">1.2K watching</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="w-full max-w-[800px] mx-auto rounded-2xl shadow-2xl overflow-hidden">
+                <video 
+                  className="w-full h-full object-cover"
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                >
+                  <source src="/assets/kawaii.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               </div>
             </div>
             {/* Decorative elements */}
