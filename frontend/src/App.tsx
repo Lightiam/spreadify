@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/api-client'
 import { Login } from '@/pages/Login'
 import { WebSocketTest } from '@/components/webrtc/WebSocketTest'
 import { ConnectionTest } from '@/components/webrtc/ConnectionTest'
+import PrivacyPolicy from '@/pages/PrivacyPolicy'
 
 // Logout button component to properly use hooks
 function LogoutButton() {
@@ -31,7 +32,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
   
   useEffect(() => {
-    const publicPaths = ['/', '/login', '/pricing', '/success'];
+    const publicPaths = ['/', '/login', '/pricing', '/success', '/privacy-policy'];
     const isPublicPath = publicPaths.includes(window.location.pathname);
     
     const fetchUser = async () => {
@@ -222,6 +223,7 @@ function AppContent() {
           />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/success" element={<SuccessPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="*" element={<Navigate to="/studio" replace />} />
         </Routes>

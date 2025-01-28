@@ -1,12 +1,8 @@
 import { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-
-import { stripePromise } from '@/lib/stripe';
 
 interface PricingTier {
   name: string;
@@ -94,33 +90,26 @@ const PricingCard = ({ tier, billingCycle }: { tier: PricingTier; billingCycle: 
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const response = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: tier.priceId,
-          planType: billingCycle,
-        }),
+      // Test mode - simulate payment flow
+      console.log('Test mode - Simulating payment flow for:', {
+        priceId: tier.priceId,
+        planType: billingCycle,
+        tier: tier.name
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const { sessionId } = await response.json();
-      const stripe = await stripePromise;
-      
-      if (!stripe) {
-        throw new Error('Stripe failed to initialize');
-      }
+      // Show success toast for testing
+      toast({
+        title: "Test Mode",
+        description: `Simulated subscription to ${tier.name} plan (${billingCycle}). In production, this would redirect to Stripe.`,
+      });
 
-      const { error } = await stripe.redirectToCheckout({ sessionId });
+      // For testing purposes, redirect to success page with a mock session ID
+      const mockSessionId = `mock_session_${Date.now()}`;
+      window.location.href = `/success?session_id=${mockSessionId}`;
       
-      if (error) {
-        throw error;
-      }
     } catch (error) {
       console.error('Payment error:', error);
       toast({

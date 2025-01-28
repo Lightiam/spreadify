@@ -58,56 +58,49 @@ async def create_checkout_session(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/webhook")
-async def stripe_webhook(request: Request):
+# Webhook endpoint removed as per request - using direct session verification instead
+
+@router.post("/verify-subscription")
+async def verify_subscription(
+    session_id: str,
+    current_user = Depends(get_current_user)
+):
+    """
+    Verify subscription status directly after payment completion
+    without relying on webhooks
+    """
     try:
-        event = stripe.Webhook.construct_event(
-            payload=await request.body(),
-            sig_header=request.headers.get("stripe-signature"),
-            secret=os.getenv("STRIPE_WEBHOOK_SECRET")
-        )
+        session = stripe.checkout.Session.retrieve(session_id)
         
-        if event.type == "checkout.session.completed":
-            session = event.data.object
-            # Handle successful payment
-            print(f"Payment successful for session: {session.id}")
+        if session.payment_status != "paid":
+            return JSONResponse(content={
+                "status": "pending",
+                "message": "Payment not yet completed"
+            })
             
-            # Extract subscription details from metadata
-            user_id = session.metadata.get('user_id')
-            plan_type = session.metadata.get('plan_type', 'monthly')
-            subscription_id = session.subscription
-            
-            if not user_id:
-                raise HTTPException(status_code=400, detail="User ID not found in session metadata")
-                
-            # TODO: Update user subscription status in database
-            # subscription_data = {
-            #     'status': 'active',
-            #     'plan': session.metadata.get('price_id'),
-            #     'subscription_id': subscription_id,
-            #     'billing_cycle': plan_type,
-            #     'current_period_end': None  # Will be set when we get subscription details
-            # }
-            
-        elif event.type == "customer.subscription.updated":
-            subscription = event.data.object
-            # TODO: Update subscription status in database
-            # subscription_data = {
-            #     'current_period_end': subscription.current_period_end,
-            #     'status': subscription.status
-            # }
-            
-        elif event.type == "customer.subscription.deleted":
-            subscription = event.data.object
-            # TODO: Update subscription status to cancelled in database
-            # subscription_data = {
-            #     'status': 'cancelled',
-            #     'cancelled_at': subscription.canceled_at
-            # }
-            
-        return JSONResponse(content={"status": "success"})
-    except stripe.error.SignatureVerificationError:
-        raise HTTPException(status_code=400, detail="Invalid signature")
+        if session.customer_email != current_user.email:
+            raise HTTPException(status_code=403, detail="Unauthorized")
+        
+        # Get subscription details directly
+        if session.subscription:
+            subscription = stripe.Subscription.retrieve(session.subscription)
+            return JSONResponse(content={
+                "status": "success",
+                "subscription": {
+                    "id": subscription.id,
+                    "status": subscription.status,
+                    "current_period_end": subscription.current_period_end,
+                    "plan": subscription.plan.id
+                }
+            })
+        
+        return JSONResponse(content={
+            "status": "success",
+            "session": session.id
+        })
+        
+    except stripe.error.InvalidRequestError:
+        raise HTTPException(status_code=400, detail="Invalid session ID")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

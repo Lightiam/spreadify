@@ -40,13 +40,13 @@ class ApiClient {
 
   private async request<T>(
     endpoint: string,
-    options: { method?: string; body?: string; headers?: Record<string, string> } = {}
+    options: { method?: string; body?: any; headers?: Record<string, string> } = {}
   ): Promise<T> {
     try {
       const { data } = await axiosInstance({
         url: endpoint,
         method: options.method || 'GET',
-        data: options.body ? JSON.parse(options.body) : undefined,
+        data: options.body,
         headers: options.headers as Record<string, string>,
       });
 
@@ -57,6 +57,13 @@ class ApiClient {
         status: error.response?.status || 500,
       } as ApiError;
     }
+  }
+
+  async post<T>(endpoint: string, body?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body
+    });
   }
 
   // Auth endpoints

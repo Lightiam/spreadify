@@ -22,7 +22,13 @@ export async function createCheckoutSession(priceId: string): Promise<string> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ priceId }),
+    credentials: 'include'
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to create checkout session');
+  }
 
   const { sessionId } = await response.json();
   return sessionId;
@@ -39,4 +45,31 @@ export async function redirectToCheckout(sessionId: string) {
   if (error) {
     throw new Error(error.message);
   }
+}
+
+// Function to verify subscription status
+export async function verifySubscription(sessionId: string): Promise<{
+  status: string;
+  subscription?: {
+    id: string;
+    status: string;
+    current_period_end: number;
+    plan: string;
+  };
+}> {
+  const response = await fetch('/api/stripe/verify-subscription', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ sessionId }),
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || 'Failed to verify subscription');
+  }
+
+  return response.json();
 }

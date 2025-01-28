@@ -184,6 +184,71 @@ export function LandingPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="mt-32 py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">About</h3>
+              <p className="text-gray-600">
+                Spreadify AI is a professional live streaming platform that helps content creators reach wider audiences.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/privacy-policy" className="text-gray-600 hover:text-purple-600">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms" className="text-gray-600 hover:text-purple-600">
+                    Terms of Service
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Support</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="mailto:support@spreadify.ai" className="text-gray-600 hover:text-purple-600">
+                    Contact Us
+                  </a>
+                </li>
+                <li>
+                  <Link to="/faq" className="text-gray-600 hover:text-purple-600">
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Connect</h3>
+              <div className="flex space-x-4">
+                <a href="https://twitter.com/spreadifyai" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-purple-600">
+                  Twitter
+                </a>
+                <a href="https://linkedin.com/company/spreadifyai" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-purple-600">
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-gray-200">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-600">© 2024 Spreadify AI. All rights reserved.</p>
+              <div className="mt-4 md:mt-0">
+                <Link to="/privacy-policy" className="text-gray-600 hover:text-purple-600">
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

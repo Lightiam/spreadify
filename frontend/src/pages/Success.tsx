@@ -17,9 +17,23 @@ export function SuccessPage() {
       }
 
       try {
-        // Verify the payment with backend
-        await apiClient.post('/api/stripe/verify-session', { sessionId });
-        setStatus('success');
+        // Check if we're in test mode (mock session ID)
+        if (sessionId.startsWith('mock_session_')) {
+          console.log('Test mode - Simulating successful payment');
+          setStatus('success');
+          return;
+        }
+
+        // Real payment verification
+        const result = await apiClient.post<{ status: string; subscription?: { id: string; status: string; current_period_end: number; plan: string; } }>('/api/stripe/verify-subscription', { sessionId });
+        if (result.status === 'success') {
+          setStatus('success');
+        } else if (result.status === 'pending') {
+          // Retry after 5 seconds if payment is still pending
+          setTimeout(() => verifyPayment(), 5000);
+        } else {
+          throw new Error('Payment verification failed');
+        }
       } catch (error) {
         console.error('Payment verification failed:', error);
         setStatus('error');
