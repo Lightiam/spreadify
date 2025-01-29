@@ -10,6 +10,18 @@ export default {
           sm: 'calc(var(--radius) - 4px)'
         },
         colors: {
+          brand: {
+            50: '#F9F5FF',
+            100: '#F4EBFF',
+            200: '#E9D7FE',
+            300: '#D6BBFB',
+            400: '#B692F6',
+            500: '#9E77ED',
+            600: '#7F56D9',  // Primary brand color
+            700: '#6941C6',
+            800: '#53389E',
+            900: '#42307D'
+          },
           sidebar: {
             DEFAULT: 'hsl(var(--sidebar-background))',
             foreground: 'hsl(var(--sidebar-foreground))',

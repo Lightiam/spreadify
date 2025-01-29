@@ -137,7 +137,7 @@ function AppContent() {
               <div className="flex">
                 <div className="flex items-center">
                   <Link to="/" className="text-xl font-bold text-indigo-600">
-                    Spreadify AI
+                    Spreadify A
                   </Link>
                 </div>
               </div>

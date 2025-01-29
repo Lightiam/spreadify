@@ -8,7 +8,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
             <p className="text-gray-700">
-              Welcome to Spreadify AI. We respect your privacy and are committed to protecting your personal data.
+              Welcome to Spreadify A. We respect your privacy and are committed to protecting your personal data.
               This privacy policy will inform you about how we look after your personal data when you visit our website
               and tell you about your privacy rights and how the law protects you.
             </p>
@@ -69,7 +69,7 @@ const PrivacyPolicy = () => {
             <h2 className="text-2xl font-semibold mb-4">6. Contact Us</h2>
             <p className="text-gray-700">
               If you have any questions about this privacy policy or our privacy practices, please contact us at:
-              support@spreadify.ai
+              support@spreadify.app
             </p>
           </section>
 

@@ -10,21 +10,26 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-zinc-900 text-zinc-50 shadow hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90",
+          "bg-brand-600 text-white shadow hover:bg-brand-700 transition-colors",
         destructive:
-          "bg-red-500 text-zinc-50 shadow-sm hover:bg-red-500/90 dark:bg-red-900 dark:text-zinc-50 dark:hover:bg-red-900/90",
+          "bg-red-500 text-white shadow-sm hover:bg-red-600 transition-colors",
         outline:
-          "border border-zinc-200 bg-white shadow-sm hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
+          "border border-brand-200 bg-white text-brand-700 shadow-sm hover:bg-brand-50 hover:border-brand-300 transition-colors",
         secondary:
-          "bg-zinc-100 text-zinc-900 shadow-sm hover:bg-zinc-100/80 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-800/80",
-        ghost: "hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
-        link: "text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-50",
+          "bg-brand-100 text-brand-700 shadow-sm hover:bg-brand-200 transition-colors",
+        ghost: 
+          "text-brand-600 hover:bg-brand-50 hover:text-brand-700 transition-colors",
+        link: 
+          "text-brand-600 underline-offset-4 hover:text-brand-700 hover:underline transition-colors",
+        brand:
+          "bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus:ring-2 focus:ring-brand-200 transition-colors",
       },
       size: {
-        default: "h-9 px-4 py-2",
+        default: "h-10 px-4 py-2 text-sm",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        lg: "h-11 rounded-md px-8 text-base",
+        xl: "h-12 rounded-md px-10 text-lg",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {

@@ -72,7 +72,7 @@ export function SuccessPage() {
             </div>
             <h2 className="mt-4 text-2xl font-bold">Payment Successful!</h2>
             <p className="mt-2 text-gray-600">
-              Thank you for upgrading your Spreadify AI account. Your new features are now available.
+              Thank you for upgrading your Spreadify A account. Your new features are now available.
             </p>
             <div className="mt-6">
               <Button
@@ -115,7 +115,7 @@ export function SuccessPage() {
                 Return to Pricing
               </Button>
               <Button
-                onClick={() => window.location.href = 'mailto:support@spreadify.ai'}
+                onClick={() => window.location.href = 'mailto:support@spreadify.app'}
                 className="w-full"
               >
                 Contact Support

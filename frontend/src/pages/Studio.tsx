@@ -23,7 +23,7 @@ export function Studio() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Spreadify AI Studio</h1>
+      <h1 className="text-2xl font-bold mb-4">Spreadify A Studio</h1>
       <div className="grid gap-4">
         <WebSocketConnectionTest />
       </div>

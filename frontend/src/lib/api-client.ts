@@ -72,17 +72,38 @@ class ApiClient {
   }
 
   async loginWithGoogle(): Promise<void> {
-    // Redirect directly to the backend's OAuth endpoint
-    window.location.href = `${this.baseUrl}/auth/login/google`;
+    try {
+      // Add state parameter for CSRF protection
+      const state = Math.random().toString(36).substring(7);
+      sessionStorage.setItem('oauth_state', state);
+      
+      // Redirect to the backend's OAuth endpoint with state
+      const redirectUrl = `${this.baseUrl}/auth/login/google?state=${state}`;
+      console.log('Redirecting to OAuth endpoint:', redirectUrl);
+      window.location.href = redirectUrl;
+    } catch (error) {
+      console.error('Failed to initiate Google login:', error);
+      throw new Error('Failed to start authentication process');
+    }
   }
 
-  async handleOAuthCallback(code: string): Promise<void> {
-    // Store the token in localStorage for easier access
-    localStorage.setItem('token', code);
-    
-    // Token is automatically set in cookie by the backend
-    // Refresh the current user data
-    await this.getCurrentUser();
+  async handleOAuthCallback(token: string): Promise<void> {
+    try {
+      // Store the token in localStorage
+      localStorage.setItem('token', token);
+      
+      // Set secure cookie for WebSocket access
+      const secure = window.location.protocol === 'https:' ? 'secure;' : '';
+      const domain = window.location.hostname;
+      const cookieValue = `token=${token}; path=/; ${secure} domain=${domain}; samesite=lax; max-age=3600`;
+      document.cookie = cookieValue;
+      
+      // Refresh the current user data
+      await this.getCurrentUser();
+    } catch (error) {
+      console.error('Error handling OAuth callback:', error);
+      throw new Error('Failed to process authentication token');
+    }
   }
 
   // Stream endpoints

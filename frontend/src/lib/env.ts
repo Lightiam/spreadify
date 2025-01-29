@@ -24,11 +24,10 @@ export interface EnvVars {
 function validateEnv(): EnvVars {
   const env = import.meta.env;
   
-  // Log environment variables for debugging
+  // Log environment variables for debugging (excluding sensitive data)
   console.log('Environment variables:', {
     APP_URL: env.VITE_APP_URL,
     BACKEND_URL: env.VITE_BACKEND_URL,
-    GOOGLE_CLIENT_ID: env.VITE_GOOGLE_CLIENT_ID,
     WEBRTC_ICE_SERVERS: env.VITE_WEBRTC_ICE_SERVERS,
     WEBSOCKET_URL: env.VITE_WEBSOCKET_URL
   });

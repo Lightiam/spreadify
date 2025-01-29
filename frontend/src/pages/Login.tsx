@@ -13,47 +13,43 @@ export function Login() {
   useEffect(() => {
     // Check for auth callback
     const searchParams = new URLSearchParams(location.search);
-    const code = searchParams.get('code');
+    const token = searchParams.get('token');
     const error = searchParams.get('error');
+    const errorMessage = searchParams.get('message');
     
     if (error) {
-      setError(decodeURIComponent(error));
+      const message = errorMessage ? decodeURIComponent(errorMessage) : 'Authentication failed';
+      setError(message);
       // Remove error from URL
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
+      setIsLoading(false);
       return;
     }
     
-    if (code) {
+    if (token) {
       setIsLoading(true);
-      // The code is our JWT token from the backend
-      console.log('Received OAuth code:', code);
-      
-      // Store token in both localStorage and cookies for different auth mechanisms
-      localStorage.setItem('token', code);
-      console.log('Stored token in localStorage:', localStorage.getItem('token'));
-      
-      // Set cookie with proper attributes for WebSocket access
-      const secure = window.location.protocol === 'https:' ? 'secure;' : '';
-      const cookieValue = `token=${code}; path=/; ${secure} samesite=lax; max-age=3600`;
-      document.cookie = cookieValue;
-      console.log('Setting cookie with value:', cookieValue);
-      
-      // Remove the code from the URL
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, '', newUrl);
-      
-      // Log cookie status for debugging
-      console.log('All cookies after setting:', document.cookie);
-      
-      // Double check cookie was set
-      const cookies = document.cookie.split(';');
-      console.log('Parsed cookies:', cookies);
-      const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='));
-      console.log('Found token cookie:', tokenCookie);
-      
-      // Redirect to studio
-      navigate('/studio');
+      try {
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+        
+        // Set secure cookie for WebSocket
+        const secure = window.location.protocol === 'https:' ? 'secure;' : '';
+        const domain = window.location.hostname;
+        const cookieValue = `token=${token}; path=/; ${secure} domain=${domain}; samesite=lax; max-age=3600`;
+        document.cookie = cookieValue;
+        
+        // Clean URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+        
+        // Redirect to studio
+        navigate('/studio');
+      } catch (error) {
+        console.error('Error handling authentication token:', error);
+        setError('Failed to process authentication token. Please try again.');
+        setIsLoading(false);
+      }
     }
   }, [location, navigate]);
 
@@ -75,15 +71,28 @@ export function Login() {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to Spreadify AI
+            Sign in to Spreadify A
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Start streaming to multiple platforms
           </p>
         </div>
         {error && (
-          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="mt-2 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">Authentication Error</h3>
+                <p className="mt-1 text-sm text-red-600">{error}</p>
+                <p className="mt-2 text-sm text-red-600">
+                  Please ensure you have a verified email address and try again. If the problem persists, contact support.
+                </p>
+              </div>
+            </div>
           </div>
         )}
         <div className="mt-8 space-y-6">
