@@ -10,33 +10,35 @@ env_path = Path(__file__).resolve().parent.parent / '.env'
 print(f"Looking for .env at: {env_path}")
 print(f"File exists: {env_path.exists()}")
 
-if not env_path.exists():
-    raise FileNotFoundError(f".env file not found at {env_path}")
+# In production, environment variables should be set through the platform
+if env_path.exists():
+    print("Loading environment variables from .env file")
+    # Read and set environment variables directly
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                try:
+                    key, value = line.split('=', 1)
+                    if not os.environ.get(key.strip()):  # Don't override existing env vars
+                        os.environ[key.strip()] = value.strip().strip('"\'')
+                except ValueError:
+                    continue
+else:
+    print("No .env file found, using system environment variables")
 
-# Read and set environment variables directly
-with open(env_path) as f:
-    for line in f:
-        line = line.strip()
-        if line and not line.startswith('#'):
-            try:
-                key, value = line.split('=', 1)
-                os.environ[key.strip()] = value.strip().strip('"\'')
-            except ValueError:
-                continue
-
-# Debug environment variables
+# Debug environment variables (excluding sensitive data)
 print("\nEnvironment variables after loading:")
-print(f"GOOGLE_CLIENT_ID: {os.environ.get('GOOGLE_CLIENT_ID')}")
-print(f"GOOGLE_CLIENT_SECRET: {os.environ.get('GOOGLE_CLIENT_SECRET')}")
-print(f"JWT_SECRET: {os.environ.get('JWT_SECRET')}")
 print(f"FRONTEND_URL: {os.environ.get('FRONTEND_URL')}")
+print(f"PUBLIC_URL: {os.environ.get('PUBLIC_URL')}")
+print(f"OAUTH_REDIRECT_URL: {os.environ.get('OAUTH_REDIRECT_URL')}")
 
 # Import routers after environment variables are loaded
 from .routers import auth, streams, webrtc, stripe
 
 # Initialize FastAPI app with configuration
 app = FastAPI(
-    title="Spreadify AI",
+    title="Spreadify A",
     description="A multi-platform live streaming and recording platform",
     version="1.0.0"
 )

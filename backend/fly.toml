@@ -1,4 +1,4 @@
-app = "stream-live-app"
+app = "spreadify-api"
 primary_region = "iad"
 
 [build]
@@ -6,6 +6,10 @@ primary_region = "iad"
 
 [env]
   PORT = "8080"
+  FRONTEND_URL = "https://stream-live-app-xabl732t.devinapps.com"
+  PUBLIC_URL = "https://spreadify-api.fly.dev"
+  OAUTH_REDIRECT_URL = "https://spreadify-api.fly.dev/auth/callback"
+  CORS_ORIGINS = '["https://stream-live-app-xabl732t.devinapps.com", "http://localhost:5173", "http://localhost:3000"]'
 
 [http_service]
   internal_port = 8080

@@ -22,6 +22,8 @@ starlette = "^0.45.3"
 itsdangerous = "^2.2.0"
 pyjwt = "^2.10.1"
 stripe = "^7.11.0"
+sqlalchemy = "^2.0.27"
+alembic = "^1.13.1"
 
 
 [build-system]
