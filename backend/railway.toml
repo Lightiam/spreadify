@@ -10,10 +10,14 @@ restartPolicyType = "on_failure"
 
 [env]
 PYTHON_VERSION = "3.12"
+FRONTEND_URL = "https://stream-live-app-xabl732t.devinapps.com"
+PUBLIC_URL = "https://spreadify-api.railway.app"
+OAUTH_REDIRECT_URL = "https://spreadify-api.railway.app/auth/callback"
+CORS_ORIGINS = '["https://stream-live-app-xabl732t.devinapps.com", "http://localhost:5173", "http://localhost:3000"]'
 
 [[services]]
 name = "spreadify-backend"
-internal_port = 8080
+internal_port = 8000
 protocol = "http"
 
 [[services.ports]]
