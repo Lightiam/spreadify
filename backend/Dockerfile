@@ -42,10 +42,10 @@ COPY . .
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app"
-ENV PORT=8080
+ENV PORT=8000
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8000
 
 # Start application with JSON args format
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
