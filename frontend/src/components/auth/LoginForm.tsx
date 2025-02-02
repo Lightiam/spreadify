@@ -16,13 +16,32 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    console.log('Attempting login with:', { email });
 
     try {
+      console.log('Making login request...');
       const response = await auth.login(email, password);
-      setToken(response.data.token);
-      setUser(response.data.user);
-      navigate("/dashboard");
+      console.log('Login response:', response.data);
+      
+      if (response.data.access_token) {
+        const token = `Bearer ${response.data.access_token}`;
+        setToken(token);
+        
+        try {
+          const userResponse = await auth.me();
+          setUser(userResponse.data);
+          console.log('User data fetched, redirecting to dashboard...');
+          navigate("/dashboard");
+        } catch (error) {
+          console.error('Failed to fetch user data:', error);
+          throw error;
+        }
+      } else {
+        console.error('Invalid response format:', response.data);
+        throw new Error('Invalid response format');
+      }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
         description: "Invalid email or password",

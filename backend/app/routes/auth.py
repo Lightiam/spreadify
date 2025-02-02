@@ -72,11 +72,23 @@ async def login(
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
+    print(f"Login attempt for username: {username}")
     user = db.query(User).filter(
         (User.email == username) | (User.username == username)
     ).first()
     
-    if not user or not verify_password(password, user.password_hash):
+    if not user:
+        print("User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username/email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    is_valid = verify_password(password, user.password_hash)
+    print(f"Password verification result: {is_valid}")
+    
+    if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username/email or password",

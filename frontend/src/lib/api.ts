@@ -5,20 +5,37 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
 });
 
 api.interceptors.request.use((config) => {
   const token = useAuth.getState().token;
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers = {
+      ...config.headers,
+      'Authorization': token
+    };
   }
   return config;
 });
 
 export const auth = {
-  login: (email: string, password: string) =>
-    api.post('/auth/token', { username: email, password }),
+  login: async (email: string, password: string) => {
+    const formData = new FormData();
+    formData.append('username', email);
+    formData.append('password', password);
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/auth/token`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response;
+  },
   register: (email: string, password: string, username: string) =>
     api.post('/auth/register', { email, password, username }),
   me: () => api.get('/auth/me'),
