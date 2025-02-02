@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useAuth } from './auth';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -9,36 +8,7 @@ export const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config) => {
-  const token = useAuth.getState().token;
-  if (token && config.headers) {
-    config.headers.Authorization = token;
-  }
-  return config;
-});
-
-export const auth = {
-  login: async (email: string, password: string) => {
-    const formData = new FormData();
-    formData.append('username', email);
-    formData.append('password', password);
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/auth/token`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    return response;
-  },
-  register: (email: string, password: string, username: string) =>
-    api.post('/auth/register', { email, password, username }),
-  me: () => api.get('/auth/me'),
-  getFacebookCallback: (code: string) => api.post('/auth/facebook', { code }),
-  getTwitterCallback: (code: string) => api.post('/auth/twitter', { code }),
-};
+// Auth endpoints removed
 
 export const channels = {
   create: (data: { name: string; description?: string }) =>

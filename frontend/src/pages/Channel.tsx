@@ -52,16 +52,23 @@ export default function Channel() {
     setIsCreating(true);
 
     try {
-      await streams.create(id, newStream);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/channels/${id}/streams`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newStream),
+      });
+      
+      if (!response.ok) throw new Error('Failed to create stream');
+      
       toast({
-        title: "Success",
         description: "Stream created successfully"
       });
       setNewStream({ title: "", description: "" });
       fetchData();
     } catch (error) {
       toast({
-        title: "Error",
         description: "Failed to create stream",
         variant: "destructive"
       });

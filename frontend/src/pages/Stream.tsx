@@ -1026,11 +1026,19 @@ export default function Stream() {
     if (!id || !newMessage.trim()) return;
 
     try {
-      await chat.send(id, newMessage);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/streams/${id}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: newMessage }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to send message');
+      
       setNewMessage("");
     } catch (error) {
       toast({
-        title: "Error",
         description: "Failed to send message",
         variant: "destructive"
       });
@@ -1067,22 +1075,16 @@ export default function Stream() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">{stream.title}</h1>
           <div className="flex gap-2">
-            {canSendSuperChat(id!) && (
-              <Button variant="outline" onClick={() => setShowSuperChat(true)}>
-                Super Chat
-              </Button>
-            )}
-            {hasStreamPermission(id!, 'edit') && (
-              <>
-                <Button variant="outline" onClick={() => setShowAnalytics(!showAnalytics)}>
-                  <BarChart className="mr-2 h-4 w-4" />
-                  Analytics
-                </Button>
-                <Button variant="outline" size="icon" onClick={() => setShowSettings(true)}>
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </>
-            )}
+            <Button variant="outline" onClick={() => setShowSuperChat(true)}>
+              Super Chat
+            </Button>
+            <Button variant="outline" onClick={() => setShowAnalytics(!showAnalytics)}>
+              <BarChart className="mr-2 h-4 w-4" />
+              Analytics
+            </Button>
+            <Button variant="outline" size="icon" onClick={() => setShowSettings(true)}>
+              <Settings className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 

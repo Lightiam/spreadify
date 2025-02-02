@@ -1,11 +1,8 @@
-// No React import needed
 import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/auth";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -13,16 +10,7 @@ export default function Home() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <h1 className="text-2xl font-bold">Spreadify</h1>
           <div className="flex gap-4">
-            {user ? (
-              <Button onClick={() => navigate("/dashboard")}>Dashboard</Button>
-            ) : (
-              <>
-                <Button variant="ghost" onClick={() => navigate("/login")}>
-                  Login
-                </Button>
-                <Button onClick={() => navigate("/register")}>Get Started</Button>
-              </>
-            )}
+            <Button onClick={() => navigate("/dashboard")}>Go to Dashboard</Button>
           </div>
         </div>
       </header>
@@ -32,7 +20,7 @@ export default function Home() {
           <p className="mb-8 text-xl text-muted-foreground">
             Reach your audience everywhere with one click
           </p>
-          <Button size="lg" onClick={() => navigate(user ? "/dashboard" : "/register")}>
+          <Button size="lg" onClick={() => navigate("/dashboard")}>
             Start Streaming Now
           </Button>
         </section>

@@ -11,7 +11,7 @@ import { channels, streams } from "../lib/api";
 import { formatDate, formatViewCount } from "../lib/utils";
 
 export default function Dashboard() {
-  const [userChannels, setUserChannels] = React.useState<Channel[]>([]);
+  const [channels, setChannels] = React.useState<Channel[]>([]);
   const [liveStreams, setLiveStreams] = React.useState<Stream[]>([]);
   const [newChannel, setNewChannel] = React.useState({ name: "", description: "" });
   const [isCreating, setIsCreating] = React.useState(false);
@@ -23,20 +23,21 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const channelsResponse = await channels.list();
-      setUserChannels(channelsResponse.data);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/channels`);
+      const channelsData = await response.json();
+      setChannels(channelsData);
 
       const activeStreams: Stream[] = [];
-      for (const channel of channelsResponse.data) {
-        const streamsResponse = await streams.list(channel.id);
-        const liveStreams = streamsResponse.data.filter((s: Stream) => s.status === 'live');
+      for (const channel of channelsData) {
+        const streamsResponse = await fetch(`${import.meta.env.VITE_API_URL}/channels/${channel.id}/streams`);
+        const streamsData = await streamsResponse.json();
+        const liveStreams = streamsData.filter((s: Stream) => s.status === 'live');
         activeStreams.push(...liveStreams);
       }
       setLiveStreams(activeStreams);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
-        title: "Error",
         description: "Failed to load dashboard data",
         variant: "destructive",
       });
@@ -48,16 +49,23 @@ export default function Dashboard() {
     setIsCreating(true);
 
     try {
-      await channels.create(newChannel);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/channels`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newChannel),
+      });
+      
+      if (!response.ok) throw new Error('Failed to create channel');
+      
       toast({
-        title: "Success",
         description: "Channel created successfully",
       });
       setNewChannel({ name: "", description: "" });
       fetchData();
     } catch (error) {
       toast({
-        title: "Error",
         description: "Failed to create channel",
         variant: "destructive",
       });
@@ -115,11 +123,11 @@ export default function Dashboard() {
             <CardTitle>Your Channels</CardTitle>
           </CardHeader>
           <CardContent>
-            {userChannels.length === 0 ? (
+            {channels.length === 0 ? (
               <p className="text-muted-foreground">No channels yet</p>
             ) : (
               <div className="space-y-4">
-                {userChannels.map((channel) => (
+                {channels.map((channel) => (
                   <div
                     key={channel.id}
                     className="flex items-center justify-between rounded-lg border p-4"
