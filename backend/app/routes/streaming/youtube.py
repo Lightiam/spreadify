@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import httpx
 import os
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 from ...db import get_db
 from ...auth import get_current_user
@@ -62,7 +65,7 @@ async def start_youtube_stream(
     async with httpx.AsyncClient() as client:
         broadcast_response = await client.post(
             "https://www.googleapis.com/youtube/v3/liveBroadcasts",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers=cast(Dict[str, str], {"Authorization": f"Bearer {access_token}"}),
             json={
                 "snippet": {
                     "title": stream.title,
@@ -83,7 +86,7 @@ async def start_youtube_stream(
         # Create YouTube stream
         stream_response = await client.post(
             "https://www.googleapis.com/youtube/v3/liveStreams",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers=cast(Dict[str, str], {"Authorization": f"Bearer {access_token}"}),
             json={
                 "snippet": {
                     "title": stream.title
@@ -104,7 +107,7 @@ async def start_youtube_stream(
         # Bind broadcast and stream
         bind_response = await client.post(
             f"https://www.googleapis.com/youtube/v3/liveBroadcasts/bind",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers=cast(Dict[str, str], {"Authorization": f"Bearer {access_token}"}),
             params={
                 "id": broadcast_data["id"],
                 "streamId": stream_data["id"],
@@ -133,7 +136,7 @@ async def stop_youtube_stream(
     async with httpx.AsyncClient() as client:
         response = await client.post(
             f"https://www.googleapis.com/youtube/v3/liveBroadcasts/transition",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers=cast(Dict[str, str], {"Authorization": f"Bearer {access_token}"}),
             params={
                 "id": broadcast_id,
                 "broadcastStatus": "complete",

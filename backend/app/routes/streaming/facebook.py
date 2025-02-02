@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import httpx
 import os
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, Any, cast
+
+logger = logging.getLogger(__name__)
 
 from ...db import get_db
 from ...auth import get_current_user
@@ -34,13 +38,20 @@ async def start_facebook_stream(
     if stream.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    access_token = await get_facebook_token(db, current_user.id)
+    try:
+        access_token = await get_facebook_token(db, current_user.id)
+    except Exception as e:
+        logger.error(f"Failed to get Facebook token: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Failed to authenticate with Facebook"
+        )
     
     async with httpx.AsyncClient() as client:
         # Create Facebook Live video
         response = await client.post(
             "https://graph.facebook.com/v18.0/me/live_videos",
-            params={"access_token": access_token},
+            params=cast(Dict[str, str], {"access_token": access_token}),
             json={
                 "title": stream.title,
                 "description": stream.description,
@@ -71,10 +82,10 @@ async def stop_facebook_stream(
     async with httpx.AsyncClient() as client:
         response = await client.post(
             f"https://graph.facebook.com/v18.0/{live_video_id}",
-            params={
+            params=cast(Dict[str, str], {
                 "access_token": access_token,
                 "end_live_video": "true"
-            }
+            })
         )
         
         if response.status_code != 200:

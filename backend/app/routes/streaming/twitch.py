@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import httpx
 import os
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, Any, cast
+
+logger = logging.getLogger(__name__)
 
 from ...db import get_db
 from ...auth import get_current_user
@@ -62,12 +66,14 @@ async def start_twitch_stream(
     
     async with httpx.AsyncClient() as client:
         # Get user channel info
+        headers = cast(Dict[str, str], {
+            "Client-ID": TWITCH_CLIENT_ID,
+            "Authorization": f"Bearer {access_token}"
+        }) if TWITCH_CLIENT_ID else {}
+        
         user_response = await client.get(
             "https://api.twitch.tv/helix/users",
-            headers={
-                "Client-ID": TWITCH_CLIENT_ID,
-                "Authorization": f"Bearer {access_token}"
-            }
+            headers=headers
         )
         
         if user_response.status_code != 200:
@@ -78,10 +84,7 @@ async def start_twitch_stream(
         # Update stream info
         stream_response = await client.patch(
             f"https://api.twitch.tv/helix/channels?broadcaster_id={user_data['id']}",
-            headers={
-                "Client-ID": TWITCH_CLIENT_ID,
-                "Authorization": f"Bearer {access_token}"
-            },
+            headers=headers,
             json={
                 "title": stream.title,
                 "game_id": "0",
@@ -95,10 +98,7 @@ async def start_twitch_stream(
         # Get stream key
         key_response = await client.get(
             "https://api.twitch.tv/helix/streams/key",
-            headers={
-                "Client-ID": TWITCH_CLIENT_ID,
-                "Authorization": f"Bearer {access_token}"
-            }
+            headers=headers
         )
         
         if key_response.status_code != 200:
@@ -119,12 +119,14 @@ async def stop_twitch_stream(
     access_token = await get_twitch_token(db, current_user.id)
     
     async with httpx.AsyncClient() as client:
+        headers = cast(Dict[str, str], {
+            "Client-ID": TWITCH_CLIENT_ID,
+            "Authorization": f"Bearer {access_token}"
+        }) if TWITCH_CLIENT_ID else {}
+        
         response = await client.delete(
             "https://api.twitch.tv/helix/streams",
-            headers={
-                "Client-ID": TWITCH_CLIENT_ID,
-                "Authorization": f"Bearer {access_token}"
-            }
+            headers=headers
         )
         
         if response.status_code not in [200, 204]:
