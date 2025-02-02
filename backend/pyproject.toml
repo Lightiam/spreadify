@@ -24,6 +24,8 @@ pydantic = {extras = ["email"], version = "^2.10.6"}
 websockets = "^14.2"
 httpx = "^0.28.1"
 python-ffmpeg-video-streaming = "^0.1.16"
+sqlalchemy = "^2.0.37"
+aiosqlite = "^0.20.0"
 
 
 [build-system]

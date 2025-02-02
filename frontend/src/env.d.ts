@@ -4,6 +4,8 @@ interface ImportMetaEnv {
   readonly VITE_API_URL: string
   readonly VITE_FRONTEND_URL: string
   readonly VITE_RTMP_SERVER_URL: string
+  readonly VITE_HLS_SERVER_URL: string
+  readonly VITE_DASH_SERVER_URL: string
   readonly VITE_STRIPE_PUBLISHABLE_KEY: string
   readonly VITE_WEBSOCKET_URL: string
 }
