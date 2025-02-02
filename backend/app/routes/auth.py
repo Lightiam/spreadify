@@ -34,73 +34,75 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
-@router.post("/register", response_model=Token)
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == user_data.email).first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
-    
-    if db.query(User).filter(User.username == user_data.username).first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already taken"
-        )
-    
-    user = User(
-        id=uuid4(),
-        email=user_data.email,
-        username=user_data.username,
-        password_hash=get_password_hash(user_data.password)
-    )
-    
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    
-    access_token = create_access_token(
-        data={"sub": str(user.id)},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    
-    return {"access_token": access_token, "token_type": "bearer"}
+# Authentication endpoints temporarily disabled
 
-@router.post("/token", response_model=Token)
-async def login(
-    username: str = Form(...),
-    password: str = Form(...),
-    db: Session = Depends(get_db)
-):
-    print(f"Login attempt for username: {username}")
-    user = db.query(User).filter(
-        (User.email == username) | (User.username == username)
-    ).first()
+# @router.post("/register", response_model=Token)
+# async def register(user_data: UserCreate, db: Session = Depends(get_db)):
+#     if db.query(User).filter(User.email == user_data.email).first():
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Email already registered"
+#         )
     
-    if not user:
-        print("User not found")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username/email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+#     if db.query(User).filter(User.username == user_data.username).first():
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Username already taken"
+#         )
     
-    is_valid = verify_password(password, user.password_hash)
-    print(f"Password verification result: {is_valid}")
+#     user = User(
+#         id=uuid4(),
+#         email=user_data.email,
+#         username=user_data.username,
+#         password_hash=get_password_hash(user_data.password)
+#     )
     
-    if not is_valid:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username/email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+#     db.add(user)
+#     db.commit()
+#     db.refresh(user)
     
-    access_token = create_access_token(
-        data={"sub": str(user.id)},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+#     access_token = create_access_token(
+#         data={"sub": str(user.id)},
+#         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     )
+    
+#     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/me", response_model=UserResponse)
-async def read_users_me(current_user: User = Depends(get_current_user)):
-    return current_user
+# @router.post("/token", response_model=Token)
+# async def login(
+#     username: str = Form(...),
+#     password: str = Form(...),
+#     db: Session = Depends(get_db)
+# ):
+#     print(f"Login attempt for username: {username}")
+#     user = db.query(User).filter(
+#         (User.email == username) | (User.username == username)
+#     ).first()
+    
+#     if not user:
+#         print("User not found")
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username/email or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+    
+#     is_valid = verify_password(password, user.password_hash)
+#     print(f"Password verification result: {is_valid}")
+    
+#     if not is_valid:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username/email or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+    
+#     access_token = create_access_token(
+#         data={"sub": str(user.id)},
+#         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     )
+#     return {"access_token": access_token, "token_type": "bearer"}
+
+# @router.get("/me", response_model=UserResponse)
+# async def read_users_me(current_user: User = Depends(get_current_user)):
+#     return current_user
