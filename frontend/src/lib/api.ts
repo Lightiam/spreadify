@@ -8,8 +8,6 @@ export const api = axios.create({
   },
 });
 
-// Auth endpoints removed
-
 export const channels = {
   create: (data: { name: string; description?: string }) =>
     api.post('/channels', data),
@@ -78,7 +76,6 @@ export const streaming = {
 
 export const music = {
   spotify: {
-    getAuthUrl: () => api.get('/music/spotify/auth-url'),
     getNowPlaying: () => api.get('/music/spotify/now-playing'),
     playTrack: (trackUri: string) => api.post('/music/spotify/play', { track_uri: trackUri }),
   },

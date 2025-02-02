@@ -27,17 +27,11 @@ export function SpotifyPlayer() {
     }
   };
 
-  const handleConnect = async () => {
-    try {
-      const response = await music.spotify.getAuthUrl();
-      window.location.href = response.data.url;
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to connect to Spotify",
-        variant: "destructive",
-      });
-    }
+  const handleConnect = () => {
+    toast({
+      description: "Spotify integration is currently disabled",
+      variant: "destructive",
+    });
   };
 
   // Track playback handled by Spotify SDK
