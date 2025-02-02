@@ -8,16 +8,14 @@ import { Socket } from "socket.io-client";
 import io from "socket.io-client";
 
 import { Stream as StreamType, ChatMessage } from "../types";
-import { streams, chat } from "../lib/api";
+import { streams } from "../lib/api";
 import { formatViewCount } from "../lib/utils";
-import { hasStreamPermission, canSendSuperChat } from "../lib/security";
 
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { SuperChatDialog } from "../components/streams/SuperChatDialog";
 import { StreamAnalytics } from "../components/streams/StreamAnalytics";
 
 
@@ -32,7 +30,7 @@ export default function Stream() {
   const [error, setError] = React.useState<string | null>(null);
   const [streamKey, setStreamKey] = React.useState<string>("");
   const [showSettings, setShowSettings] = React.useState(false);
-  const [showSuperChat, setShowSuperChat] = React.useState(false);
+
   const [showAnalytics, setShowAnalytics] = React.useState(false);
   const [peerConnection, setPeerConnection] = React.useState<RTCPeerConnection | null>(null);
   const [connectionState, setConnectionState] = React.useState<RTCPeerConnectionState>('new');
@@ -1075,9 +1073,6 @@ export default function Stream() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">{stream.title}</h1>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowSuperChat(true)}>
-              Super Chat
-            </Button>
             <Button variant="outline" onClick={() => setShowAnalytics(!showAnalytics)}>
               <BarChart className="mr-2 h-4 w-4" />
               Analytics
@@ -1188,11 +1183,7 @@ export default function Stream() {
           </DialogContent>
         </Dialog>
 
-        <SuperChatDialog
-          streamId={id!}
-          open={showSuperChat}
-          onOpenChange={setShowSuperChat}
-        />
+
       </div>
 
       <Card className="h-[calc(100vh-2rem)]">

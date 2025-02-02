@@ -5,7 +5,7 @@ import { Channel as ChannelType, Stream } from "../types";
 import { channels, streams } from "../lib/api";
 import { formatDate, formatViewCount } from "../lib/utils";
 import { Button } from "../components/ui/button";
-import { hasChannelPermission } from "../lib/security";
+
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
@@ -102,7 +102,6 @@ export default function Channel() {
             </Button>
           </div>
         </div>
-        {hasChannelPermission(id!, 'edit') && (
           <Dialog>
             <div className="flex gap-2">
               <DialogTrigger asChild>
