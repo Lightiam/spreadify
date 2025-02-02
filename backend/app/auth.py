@@ -31,15 +31,18 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user() -> User:
+async def get_current_user(db: Session = Depends(get_db)) -> User:
     """
     Temporary mock implementation that always returns the same user
     for development without authentication
     """
-    from uuid import uuid4
-    return User(
-        id=uuid4(),
-        email="dev@example.com",
-        username="dev",
-        password_hash="mock"
-    )
+    from uuid import UUID
+    MOCK_USER_ID = UUID('00000000-0000-0000-0000-000000000000')
+    
+    user = db.query(User).filter(User.id == MOCK_USER_ID).first()
+    if not user:
+        from .db.init_mock_data import init_mock_data
+        init_mock_data()
+        user = db.query(User).filter(User.id == MOCK_USER_ID).first()
+    
+    return user
