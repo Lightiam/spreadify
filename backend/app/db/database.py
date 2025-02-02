@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from .models import Base
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./spreadify.db")
 
 engine = create_engine(
     DATABASE_URL,

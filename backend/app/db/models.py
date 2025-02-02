@@ -68,10 +68,14 @@ class Stream(Base):
     started_at = Column(DateTime, nullable=True)
     ended_at = Column(DateTime, nullable=True)
     viewer_count = Column(Integer, default=0)
+    scheduled_for = Column(DateTime, nullable=True)
+    duration = Column(Integer, nullable=True)  # Duration in minutes
+    reminder_sent = Column(Boolean, default=False)
     
     channel = relationship("Channel", back_populates="streams")
     owner = relationship("User", back_populates="streams")
     chat_messages = relationship("ChatMessage", back_populates="stream")
+    overlays = relationship("Overlay", back_populates="stream")
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
@@ -86,6 +90,20 @@ class ChatMessage(Base):
     
     stream = relationship("Stream", back_populates="chat_messages")
     user = relationship("User", back_populates="chat_messages")
+
+class Overlay(Base):
+    __tablename__ = "overlays"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    stream_id = Column(UUID(as_uuid=True), ForeignKey("streams.id"))
+    path = Column(String)
+    position_x = Column(Integer, default=0)
+    position_y = Column(Integer, default=0)
+    scale = Column(Integer, default=100)
+    active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    stream = relationship("Stream", back_populates="overlays")
 
 class Subscription(Base):
     __tablename__ = "subscriptions"

@@ -3,8 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 from dotenv import load_dotenv
-from .auth import router as auth_router
-from .routes import auth
+from .routes import auth, rtmp, schedules, overlays
 from .db import init_db
 
 load_dotenv()
@@ -37,8 +36,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
 app.include_router(auth.router)
+app.include_router(rtmp.router)
+app.include_router(schedules.router)
+app.include_router(overlays.router)
 
 # Mount static files for uploads
 os.makedirs("uploads/profile_pictures", exist_ok=True)

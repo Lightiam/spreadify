@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, BackgroundTasks
-from typing import List
+from typing import List, Dict
 from ..models import Stream, StreamCreate, User
 from ..auth import get_current_user
 from ..database import db
+import logging
+
+logger = logging.getLogger(__name__)
 import uuid
 from datetime import datetime
 import json
@@ -112,9 +115,18 @@ async def start_stream(
     })
     
     # Start platform-specific streaming in background
-    background_tasks.add_task(start_platform_streams, stream)
+    platform_streams = await start_platform_streams(stream)
     
-    return {"status": "success", "stream": stream}
+    # Update stream with platform-specific information
+    await db.update_stream(stream_id, {
+        "platform_streams": platform_streams
+    })
+    
+    return {
+        "status": "success",
+        "stream": stream,
+        "platform_streams": platform_streams
+    }
 
 @router.post("/{stream_id}/end")
 async def end_stream(
@@ -139,25 +151,71 @@ async def end_stream(
             detail="Stream is not live"
         )
     
+    # Stop platform-specific streams
+    if stream.platforms:
+        platform_list = stream.platforms.split(",")
+        for platform in platform_list:
+            try:
+                if platform == "youtube" and stream.platform_streams.get("youtube_broadcast_id"):
+                    from .streaming.youtube import stop_youtube_stream
+                    await stop_youtube_stream(stream.platform_streams["youtube_broadcast_id"], db, current_user)
+                elif platform == "twitch":
+                    from .streaming.twitch import stop_twitch_stream
+                    await stop_twitch_stream(db, current_user)
+                elif platform == "facebook" and stream.platform_streams.get("facebook_live_id"):
+                    from .streaming.facebook import stop_facebook_stream
+                    await stop_facebook_stream(stream.platform_streams["facebook_live_id"], db, current_user)
+            except Exception as e:
+                logger.error(f"Failed to stop {platform} stream: {str(e)}", exc_info=True)
+    
     # Update stream status
     stream.status = "ended"
     stream.ended_at = datetime.utcnow()
     await db.update_stream(stream_id, {
         "status": stream.status,
-        "ended_at": stream.ended_at
+        "ended_at": stream.ended_at,
+        "platform_streams": {}  # Clear platform streams data
     })
     
     return {"status": "success", "stream": stream}
 
 async def start_platform_streams(stream: Stream):
     """Start streaming to each configured platform"""
+    platform_streams = {}
+    
     for platform in stream.platforms:
         try:
-            # Here we would implement platform-specific streaming logic
-            # For example, using the YouTube API, Facebook Live API, etc.
-            await asyncio.sleep(0)  # Placeholder for actual implementation
+            platform_result = None
+            if platform == "youtube":
+                from .streaming.youtube import start_youtube_stream
+                platform_result = await start_youtube_stream(str(stream.id), db, current_user)
+                if platform_result and "broadcast_id" in platform_result:
+                    platform_streams["youtube_broadcast_id"] = platform_result["broadcast_id"]
+            elif platform == "twitch":
+                from .streaming.twitch import start_twitch_stream
+                platform_result = await start_twitch_stream(str(stream.id), db, current_user)
+            elif platform == "facebook":
+                from .streaming.facebook import start_facebook_stream
+                platform_result = await start_facebook_stream(str(stream.id), db, current_user)
+                if platform_result and "stream_id" in platform_result:
+                    platform_streams["facebook_live_id"] = platform_result["stream_id"]
+            
+            if platform_result:
+                logger.info(f"Successfully started {platform} stream for stream ID: {stream.id}")
+                rtmp_url = platform_result.get("stream_url") or platform_result.get("rtmp_url")
+                stream_key = platform_result.get("stream_key")
+                
+                if rtmp_url and stream_key:
+                    platform_streams[platform] = {
+                        "rtmp_url": rtmp_url,
+                        "stream_key": stream_key
+                    }
+                else:
+                    logger.error(f"Missing RTMP URL or stream key for {platform}")
         except Exception as e:
-            print(f"Error streaming to {platform}: {str(e)}")
+            logger.error(f"Failed to start {platform} stream: {str(e)}", exc_info=True)
+            
+    return platform_streams
 
 @router.websocket("/ws/{stream_id}")
 async def websocket_endpoint(websocket: WebSocket, stream_id: str):

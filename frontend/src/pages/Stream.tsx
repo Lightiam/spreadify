@@ -1,8 +1,11 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Socket } from "socket.io-client";
+import { StreamPlayer } from "../components/streams/StreamPlayer";
 import { Copy, Settings, BarChart } from "lucide-react";
+import { StreamOverlayManager } from "../components/streams/StreamOverlayManager";
+import { Socket } from "socket.io-client";
+import io from "socket.io-client";
 
 import { Stream as StreamType, ChatMessage } from "../types";
 import { streams, chat } from "../lib/api";
@@ -13,21 +16,11 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Switch } from "../components/ui/switch";
 import { Label } from "../components/ui/label";
 import { SuperChatDialog } from "../components/streams/SuperChatDialog";
 import { StreamAnalytics } from "../components/streams/StreamAnalytics";
 
-type OverlayPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
-interface OverlaySettings {
-  title: string;
-  logo: string;
-  showViewerCount: boolean;
-  customText: string;
-  position: OverlayPosition;
-}
 
 export default function Stream() {
   const { id } = useParams<{ id: string }>();
@@ -168,40 +161,33 @@ export default function Stream() {
       totalDurationMs: Date.now() - cleanupStartTime
     });
   }, [peerConnection]);
-  const [overlaySettings, setOverlaySettings] = React.useState<OverlaySettings>({
-    title: "",
-    logo: "",
-    showViewerCount: true,
-    customText: "",
-    position: "top-left"
-  });
+  const [showOverlayManager, setShowOverlayManager] = React.useState(false);
+  const fetchStream = React.useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await streams.get(id!);
+      setStream(response.data);
+      const keyResponse = await streams.getStreamKey(id!);
+      setStreamKey(keyResponse.data.key);
+    } catch (error) {
+      setError('Failed to load stream data. Please try again.');
+      toast({
+        description: "Failed to load stream data",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
   const videoRef = React.useRef<HTMLVideoElement>(null);
-  const overlayRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!id) return;
 
     // Remove old cleanup function since we're using cleanupWebRTCResources
 
-    const fetchStream = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await streams.get(id);
-        setStream(response.data);
 
-        const keyResponse = await streams.getStreamKey(id);
-        setStreamKey(keyResponse.data.key);
-      } catch (error) {
-        setError('Failed to load stream data. Please try again.');
-        toast({
-          description: "Failed to load stream data",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
     const connectWebSocket = (): (() => void) => {
       console.log('Initializing WebSocket connection...');
@@ -1108,35 +1094,7 @@ export default function Stream() {
                   <p className="text-white">Connecting to stream...</p>
                 </div>
               )}
-              <video
-                ref={videoRef}
-                className="h-full w-full"
-                controls
-                autoPlay
-                playsInline
-              />
-              <div
-                ref={overlayRef}
-                className={`absolute p-4 ${
-                  overlaySettings.position === "top-left" ? "top-0 left-0" :
-                  overlaySettings.position === "top-right" ? "top-0 right-0" :
-                  overlaySettings.position === "bottom-left" ? "bottom-0 left-0" :
-                  "bottom-0 right-0"
-                } bg-black/50`}
-              >
-                {overlaySettings.logo && (
-                  <img src={overlaySettings.logo} alt="Stream Logo" className="h-12 w-12 mb-2" />
-                )}
-                {overlaySettings.title && (
-                  <h3 className="text-white text-lg font-bold">{overlaySettings.title}</h3>
-                )}
-                {overlaySettings.customText && (
-                  <p className="text-white">{overlaySettings.customText}</p>
-                )}
-                {overlaySettings.showViewerCount && (
-                  <p className="text-white text-sm">{formatViewCount(stream.viewerCount)} viewers</p>
-                )}
-              </div>
+              <StreamPlayer streamKey={id} />
             </div>
           ) : (
             <div className="flex h-full items-center justify-center">
@@ -1186,73 +1144,44 @@ export default function Stream() {
                   readOnly
                 />
               </div>
-              <div className="border-t pt-4 space-y-4">
-                <h3 className="font-medium">Stream Overlay</h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title-overlay">Title Overlay</Label>
-                    <Input
-                      id="title-overlay"
-                      value={overlaySettings.title}
-                      onChange={(e) => setOverlaySettings(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="Stream Title Overlay"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="custom-text">Custom Text</Label>
-                    <Input
-                      id="custom-text"
-                      value={overlaySettings.customText}
-                      onChange={(e) => setOverlaySettings(prev => ({ ...prev, customText: e.target.value }))}
-                      placeholder="Additional overlay text"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="logo-url">Logo URL</Label>
-                    <Input
-                      id="logo-url"
-                      value={overlaySettings.logo}
-                      onChange={(e) => setOverlaySettings(prev => ({ ...prev, logo: e.target.value }))}
-                      placeholder="Logo image URL"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-viewer-count">Show Viewer Count</Label>
-                    <Switch
-                      id="show-viewer-count"
-                      checked={overlaySettings.showViewerCount}
-                      onCheckedChange={(checked) =>
-                        setOverlaySettings((prev) => ({
-                          ...prev,
-                          showViewerCount: checked,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Position</Label>
-                    <Select
-                      value={overlaySettings.position}
-                      onValueChange={(value: OverlayPosition) =>
-                        setOverlaySettings((prev) => ({
-                          ...prev,
-                          position: value,
-                        }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select position" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="top-left">Top Left</SelectItem>
-                        <SelectItem value="top-right">Top Right</SelectItem>
-                        <SelectItem value="bottom-left">Bottom Left</SelectItem>
-                        <SelectItem value="bottom-right">Bottom Right</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAnalytics(true)}
+                >
+                  <BarChart className="h-4 w-4 mr-2" />
+                  Analytics
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyStreamKey()}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy Stream Key
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowOverlayManager(true)}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Overlays
+                </Button>
               </div>
+
+              <Dialog open={showOverlayManager} onOpenChange={setShowOverlayManager}>
+                <DialogContent className="max-w-3xl">
+                  <DialogHeader>
+                    <DialogTitle>Stream Overlays</DialogTitle>
+                  </DialogHeader>
+                  <StreamOverlayManager
+                    streamId={id!}
+                    onOverlayChange={fetchStream}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
           </DialogContent>
         </Dialog>
