@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, BackgroundTasks
 from typing import List, Dict
-from ..models import Stream, StreamCreate, User
-from ..auth import get_current_user
-from ..database import db
+from sqlalchemy.orm import Session
+from ..db.models import Stream as DBStream, Channel as DBChannel
+from ..db.database import get_db
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,6 +13,33 @@ from aiortc import RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
 from aiortc.contrib.media import MediaRelay
 from pydantic import BaseModel
 import asyncio
+
+class Stream(BaseModel):
+    id: str
+    title: str
+    description: str
+    channel_id: str
+    owner_id: str
+    stream_key: str
+    created_at: datetime
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    status: str = "created"
+    viewer_count: int = 0
+    scheduled_for: datetime | None = None
+    
+    class Config:
+        from_attributes = True
+
+class StreamCreate(BaseModel):
+    title: str
+    description: str
+    channel_id: str
+    platforms: List[str] = []
+    scheduled_for: datetime | None = None
+
+    def generate_stream_key(self) -> str:
+        return str(uuid.uuid4())
 
 class PlatformUpdate(BaseModel):
     platforms: List[str]
@@ -26,35 +53,31 @@ relay = MediaRelay()
 @router.post("", response_model=Stream)
 async def create_stream(
     stream_data: StreamCreate,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    # Verify channel ownership
-    channel = await db.get_channel(stream_data.channel_id)
-    if not channel or channel.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to create streams for this channel"
-        )
+    # Check if channel exists in simplified version
+    channel = db.query(DBChannel).filter(DBChannel.id == stream_data.channel_id).first()
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
     
-    stream = Stream(
+    stream = DBStream(
         id=str(uuid.uuid4()),
         title=stream_data.title,
         description=stream_data.description,
         channel_id=stream_data.channel_id,
+        owner_id="anonymous",  # Set anonymous owner
         stream_key=stream_data.generate_stream_key(),
         created_at=datetime.utcnow(),
-        platforms=stream_data.platforms,
-        scheduled_for=stream_data.scheduled_for,
-        platform_stats={
-            platform: {"viewers": 0, "likes": 0, "shares": 0}
-            for platform in stream_data.platforms
-        }
+        scheduled_for=stream_data.scheduled_for
     )
-    return await db.create_stream(stream)
+    db.add(stream)
+    db.commit()
+    db.refresh(stream)
+    return stream
 
 @router.get("/{stream_id}", response_model=Stream)
-async def get_stream(stream_id: str):
-    stream = await db.get_stream(stream_id)
+async def get_stream(stream_id: str, db: Session = Depends(get_db)):
+    stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
     return stream
@@ -65,9 +88,9 @@ from typing import List
 async def update_stream_platforms(
     stream_id: str,
     platform_data: PlatformUpdate,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    stream = await db.get_stream(stream_id)
+    stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
     
@@ -77,30 +100,30 @@ async def update_stream_platforms(
         platform: {"viewers": 0, "likes": 0, "shares": 0}
         for platform in platform_data.platforms
     }
-    return await db.update_stream(stream_id, {
+    db.query(Stream).filter(Stream.id == stream_id).update({
         "platforms": platform_data.platforms,
         "platform_stats": stream.platform_stats
     })
+    db.commit()
+    db.refresh(stream)
+    return stream
 
 @router.post("/{stream_id}/start")
 async def start_stream(
     stream_id: str,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    stream = await db.get_stream(stream_id)
+    stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
     
-    # Verify channel ownership
-    channel = await db.get_channel(stream.channel_id)
-    if not channel or channel.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to start this stream"
-        )
+    # Check if channel exists in simplified version
+    channel = db.query(Channel).filter(Channel.id == stream.channel_id).first()
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
     
-    if stream.status == "live":
+    if str(stream.status) == "live":
         raise HTTPException(
             status_code=400,
             detail="Stream is already live"
@@ -109,18 +132,20 @@ async def start_stream(
     # Update stream status
     stream.status = "live"
     stream.started_at = datetime.utcnow()
-    await db.update_stream(stream_id, {
+    db.query(Stream).filter(Stream.id == stream_id).update({
         "status": stream.status,
         "started_at": stream.started_at
     })
+    db.commit()
     
     # Start platform-specific streaming in background
     platform_streams = await start_platform_streams(stream)
     
     # Update stream with platform-specific information
-    await db.update_stream(stream_id, {
+    db.query(Stream).filter(Stream.id == stream_id).update({
         "platform_streams": platform_streams
     })
+    db.commit()
     
     return {
         "status": "success",
@@ -131,19 +156,16 @@ async def start_stream(
 @router.post("/{stream_id}/end")
 async def end_stream(
     stream_id: str,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    stream = await db.get_stream(stream_id)
+    stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
     
-    # Verify channel ownership
-    channel = await db.get_channel(stream.channel_id)
-    if not channel or channel.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to end this stream"
-        )
+    # Check if channel exists in simplified version
+    channel = db.query(Channel).filter(Channel.id == stream.channel_id).first()
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
     
     if stream.status != "live":
         raise HTTPException(
@@ -158,24 +180,25 @@ async def end_stream(
             try:
                 if platform == "youtube" and stream.platform_streams.get("youtube_broadcast_id"):
                     from .streaming.youtube import stop_youtube_stream
-                    await stop_youtube_stream(stream.platform_streams["youtube_broadcast_id"], db, current_user)
+                    await stop_youtube_stream(stream.platform_streams["youtube_broadcast_id"], db)
                 elif platform == "twitch":
                     from .streaming.twitch import stop_twitch_stream
-                    await stop_twitch_stream(db, current_user)
+                    await stop_twitch_stream(db)
                 elif platform == "facebook" and stream.platform_streams.get("facebook_live_id"):
                     from .streaming.facebook import stop_facebook_stream
-                    await stop_facebook_stream(stream.platform_streams["facebook_live_id"], db, current_user)
+                    await stop_facebook_stream(stream.platform_streams["facebook_live_id"], db)
             except Exception as e:
                 logger.error(f"Failed to stop {platform} stream: {str(e)}", exc_info=True)
     
     # Update stream status
     stream.status = "ended"
     stream.ended_at = datetime.utcnow()
-    await db.update_stream(stream_id, {
+    db.query(Stream).filter(Stream.id == stream_id).update({
         "status": stream.status,
         "ended_at": stream.ended_at,
         "platform_streams": {}  # Clear platform streams data
     })
+    db.commit()
     
     return {"status": "success", "stream": stream}
 
@@ -188,15 +211,15 @@ async def start_platform_streams(stream: Stream):
             platform_result = None
             if platform == "youtube":
                 from .streaming.youtube import start_youtube_stream
-                platform_result = await start_youtube_stream(str(stream.id), db, current_user)
+                platform_result = await start_youtube_stream(str(stream.id))
                 if platform_result and "broadcast_id" in platform_result:
                     platform_streams["youtube_broadcast_id"] = platform_result["broadcast_id"]
             elif platform == "twitch":
                 from .streaming.twitch import start_twitch_stream
-                platform_result = await start_twitch_stream(str(stream.id), db, current_user)
+                platform_result = await start_twitch_stream(str(stream.id))
             elif platform == "facebook":
                 from .streaming.facebook import start_facebook_stream
-                platform_result = await start_facebook_stream(str(stream.id), db, current_user)
+                platform_result = await start_facebook_stream(str(stream.id))
                 if platform_result and "stream_id" in platform_result:
                     platform_streams["facebook_live_id"] = platform_result["stream_id"]
             

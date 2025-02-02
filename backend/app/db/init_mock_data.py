@@ -1,44 +1,33 @@
-from uuid import UUID
 from datetime import datetime
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from .models import Base, User, Channel
+from sqlalchemy.orm import Session
+from .models import Channel, Stream, ChannelSettings
 
-# Mock user ID that will be used consistently across the application
-MOCK_USER_ID = UUID('00000000-0000-0000-0000-000000000000')
-
-def init_mock_data():
-    engine = create_engine('sqlite:///./app.db')
-    Base.metadata.create_all(engine)
+def init_mock_data(db: Session):
+    # Create test channel
+    channel = Channel(
+        name="Default Channel",
+        description="Default streaming channel",
+        owner_id="anonymous",
+        created_at=datetime.utcnow()
+    )
+    db.add(channel)
+    db.commit()
+    db.refresh(channel)
     
-    SessionLocal = sessionmaker(bind=engine)
-    db = SessionLocal()
+    # Create channel settings
+    settings = ChannelSettings(
+        channel_id=channel.id,
+        monetization_enabled=False
+    )
+    db.add(settings)
     
-    # Check if mock user exists
-    mock_user = db.query(User).filter(User.id == MOCK_USER_ID).first()
-    if not mock_user:
-        mock_user = User(
-            id=MOCK_USER_ID,
-            email="dev@example.com",
-            username="dev",
-            password_hash="mock",
-            is_active=True,
-            created_at=datetime.utcnow()
-        )
-        db.add(mock_user)
-        
-        # Create a default channel for the mock user
-        default_channel = Channel(
-            name="Default Channel",
-            description="Default streaming channel",
-            owner_id=MOCK_USER_ID,
-            created_at=datetime.utcnow()
-        )
-        db.add(default_channel)
-        
-        db.commit()
-    
-    db.close()
-
-if __name__ == "__main__":
-    init_mock_data()
+    # Create test stream
+    stream = Stream(
+        title="Test Stream",
+        description="A test stream for development",
+        channel_id=channel.id,
+        owner_id="anonymous",
+        created_at=datetime.utcnow()
+    )
+    db.add(stream)
+    db.commit()

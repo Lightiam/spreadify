@@ -4,14 +4,16 @@ import httpx
 import os
 from datetime import datetime, timedelta
 
-from ...db import get_db
-from ...auth import get_current_user
+from ...db.database import get_db
+from ...db.models import SocialAccount
+from ...db.init_mock_data import MOCK_USER_ID
+import urllib.parse
 
 router = APIRouter(prefix="/music/spotify", tags=["music"])
 
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
-SPOTIFY_REDIRECT_URI = os.getenv("PUBLIC_URL") + "/auth/callback/spotify"
+SPOTIFY_REDIRECT_URI = (os.getenv("PUBLIC_URL") or "") + "/auth/callback/spotify"
 
 async def get_spotify_token(refresh_token: str = None) -> dict:
     async with httpx.AsyncClient() as client:
@@ -58,8 +60,7 @@ async def get_spotify_auth_url():
 @router.get("/callback")
 async def spotify_callback(
     code: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -80,13 +81,13 @@ async def spotify_callback(
         
         # Store the tokens in the user's social accounts
         social_account = db.query(SocialAccount).filter(
-            SocialAccount.user_id == current_user.id,
+            SocialAccount.user_id == MOCK_USER_ID,
             SocialAccount.provider == "spotify"
         ).first()
         
         if not social_account:
             social_account = SocialAccount(
-                user_id=current_user.id,
+                user_id=MOCK_USER_ID,
                 provider="spotify",
                 access_token=token_data["access_token"],
                 refresh_token=token_data["refresh_token"],
@@ -103,11 +104,10 @@ async def spotify_callback(
 
 @router.get("/now-playing")
 async def get_now_playing(
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     social_account = db.query(SocialAccount).filter(
-        SocialAccount.user_id == current_user.id,
+        SocialAccount.user_id == MOCK_USER_ID,
         SocialAccount.provider == "spotify"
     ).first()
     
@@ -136,11 +136,10 @@ async def get_now_playing(
 @router.post("/play")
 async def play_track(
     track_uri: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     social_account = db.query(SocialAccount).filter(
-        SocialAccount.user_id == current_user.id,
+        SocialAccount.user_id == MOCK_USER_ID,
         SocialAccount.provider == "spotify"
     ).first()
     

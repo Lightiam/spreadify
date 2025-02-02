@@ -5,8 +5,9 @@ import os
 import jwt
 from datetime import datetime, timedelta
 
-from ...db import get_db
-from ...auth import get_current_user
+from ...db.database import get_db
+from ...db.models import SocialAccount
+from ...db.init_mock_data import MOCK_USER_ID
 
 router = APIRouter(prefix="/music/apple", tags=["music"])
 
@@ -38,11 +39,10 @@ async def get_developer_token() -> str:
 
 @router.get("/now-playing")
 async def get_now_playing(
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     social_account = db.query(SocialAccount).filter(
-        SocialAccount.user_id == current_user.id,
+        SocialAccount.user_id == MOCK_USER_ID,
         SocialAccount.provider == "apple_music"
     ).first()
     
@@ -70,11 +70,10 @@ async def get_now_playing(
 @router.post("/play")
 async def play_track(
     track_id: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     social_account = db.query(SocialAccount).filter(
-        SocialAccount.user_id == current_user.id,
+        SocialAccount.user_id == MOCK_USER_ID,
         SocialAccount.provider == "apple_music"
     ).first()
     

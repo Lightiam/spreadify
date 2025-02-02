@@ -1,8 +1,8 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
 from typing import Dict, Set, Optional
-from ..models import User, Stream
-from ..auth import get_current_user
-from ..database import db
+from sqlalchemy.orm import Session
+from ..db.models import Stream, Channel
+from ..db.database import get_db
 import json
 import asyncio
 from datetime import datetime
@@ -45,9 +45,10 @@ manager = ConnectionManager()
 async def websocket_endpoint(
     websocket: WebSocket,
     stream_id: str,
-    peer_id: str
+    peer_id: str,
+    db: Session = Depends(get_db)
 ):
-    stream = await db.get_stream(stream_id)
+    stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
@@ -94,18 +95,15 @@ async def websocket_endpoint(
 @router.get("/{stream_id}/peers")
 async def get_peers(
     stream_id: str,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    stream = await db.get_stream(stream_id)
+    stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
         
-    channel = await db.get_channel(stream.channel_id)
-    if not channel or channel.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to view stream peers"
-        )
+    channel = db.query(Channel).filter(Channel.id == stream.channel_id).first()
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
         
     return {
         "peers": list(manager.stream_peers.get(stream_id, set())),

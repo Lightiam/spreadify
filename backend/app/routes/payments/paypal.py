@@ -4,8 +4,8 @@ import httpx
 import os
 from datetime import datetime
 
-from ...db import get_db
-from ...auth import get_current_user
+from ...db.database import get_db
+from ...db.init_mock_data import MOCK_USER_ID
 
 router = APIRouter(prefix="/payments/paypal", tags=["payments"])
 
@@ -27,8 +27,7 @@ async def get_paypal_access_token() -> str:
 @router.post("/create-order")
 async def create_paypal_order(
     amount: float,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
         raise HTTPException(status_code=500, detail="PayPal is not configured")
@@ -63,8 +62,7 @@ async def create_paypal_order(
 @router.post("/capture-order/{order_id}")
 async def capture_paypal_order(
     order_id: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     access_token = await get_paypal_access_token()
     
@@ -84,7 +82,7 @@ async def capture_paypal_order(
         
         # Store payment information
         payment = {
-            "user_id": str(current_user.id),
+            "user_id": str(MOCK_USER_ID),
             "provider": "paypal",
             "amount": float(payment_data["purchase_units"][0]["payments"]["captures"][0]["amount"]["value"]),
             "currency": payment_data["purchase_units"][0]["payments"]["captures"][0]["amount"]["currency_code"],

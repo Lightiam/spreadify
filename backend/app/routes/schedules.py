@@ -2,12 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from ..db.database import get_db
-from ..db.models import Stream, Channel, User
+from ..db.models import Stream, Channel
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 import asyncio
 from uuid import UUID, uuid4
-from ..auth import get_current_user
 
 router = APIRouter(prefix="/schedules", tags=["schedules"])
 
@@ -17,7 +16,7 @@ class StreamSchedule(BaseModel):
     title: str
     description: str | None = None
 
-async def send_stream_reminder(stream_id: UUID, db: Session):
+async def send_stream_reminder(stream_id: str, db: Session):
     """Background task to send stream reminder"""
     stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream or not stream.scheduled_for:
@@ -29,16 +28,15 @@ async def send_stream_reminder(stream_id: UUID, db: Session):
         await asyncio.sleep(wait_time)
         
     # Update reminder status
-    stream.reminder_sent = True
+    db.query(Stream).filter(Stream.id == stream_id).update({"reminder_sent": True})
     db.commit()
 
 @router.post("/{stream_id}")
 async def schedule_stream(
-    stream_id: UUID,
+    stream_id: str,
     schedule: StreamSchedule,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     try:
         # Validate schedule time (ensure both are UTC aware)
@@ -52,14 +50,13 @@ async def schedule_stream(
 
         stream = db.query(Stream).filter(Stream.id == stream_id).first()
         if not stream:
-            # Get or create user's channel
-            channel = db.query(Channel).filter(Channel.owner_id == current_user.id).first()
+            # Get or create default channel
+            channel = db.query(Channel).filter(Channel.owner_id == "anonymous").first()
             if not channel:
                 channel = Channel(
-                    id=uuid4(),
-                    name=f"{current_user.username}'s Channel",
-                    description="My Streaming Channel",
-                    owner_id=current_user.id
+                    name="Default Channel",
+                    description="Default streaming channel",
+                    owner_id="anonymous"
                 )
                 db.add(channel)
                 db.commit()
@@ -74,16 +71,18 @@ async def schedule_stream(
                 scheduled_for=schedule.start_time,
                 duration=schedule.duration,
                 channel_id=channel.id,
-                owner_id=current_user.id
+                owner_id="anonymous"
             )
             db.add(stream)
         else:
             # Update existing stream
-            stream.scheduled_for = schedule.start_time
-            stream.title = schedule.title
-            stream.description = schedule.description
-            stream.duration = schedule.duration
-            stream.status = "scheduled"
+            db.query(Stream).filter(Stream.id == stream_id).update({
+                "scheduled_for": schedule.start_time,
+                "title": schedule.title,
+                "description": schedule.description,
+                "duration": schedule.duration,
+                "status": "scheduled"
+            })
         
         db.commit()
         db.refresh(stream)
@@ -109,9 +108,8 @@ async def schedule_stream(
 
 @router.get("/{stream_id}")
 async def get_stream_schedule(
-    stream_id: UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    stream_id: str,
+    db: Session = Depends(get_db)
 ):
     stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
@@ -131,26 +129,23 @@ async def get_stream_schedule(
 
 @router.delete("/{stream_id}")
 async def delete_stream_schedule(
-    stream_id: UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    stream_id: str,
+    db: Session = Depends(get_db)
 ):
     stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
     
-    # Verify stream ownership
-    if stream.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to modify this stream")
-    
-    # Verify channel ownership
+    # Verify channel exists
     channel = db.query(Channel).filter(Channel.id == stream.channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     
-    stream.scheduled_for = None
-    stream.duration = None
-    stream.status = "created"
+    db.query(Stream).filter(Stream.id == stream_id).update({
+        "scheduled_for": None,
+        "duration": None,
+        "status": "created"
+    })
     db.commit()
     
     return {"status": "success"}

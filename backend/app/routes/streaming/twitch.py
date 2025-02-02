@@ -8,8 +8,9 @@ from typing import Dict, Any, cast
 
 logger = logging.getLogger(__name__)
 
-from ...db import get_db
-from ...auth import get_current_user
+from sqlalchemy.orm import Session
+from ...db.database import get_db
+from ...db.init_mock_data import MOCK_USER_ID
 from ...db.models import SocialAccount, Stream
 
 router = APIRouter(prefix="/streaming/twitch", tags=["streaming"])
@@ -26,7 +27,8 @@ async def get_twitch_token(db: Session, user_id: str) -> str:
     if not social_account:
         raise HTTPException(status_code=400, detail="Twitch account not connected")
         
-    if social_account.expires_at <= datetime.utcnow():
+    expires_at = getattr(social_account, 'expires_at', None)
+    if expires_at and isinstance(expires_at, datetime) and expires_at <= datetime.utcnow():
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 "https://id.twitch.tv/oauth2/token",
@@ -34,7 +36,7 @@ async def get_twitch_token(db: Session, user_id: str) -> str:
                     "client_id": TWITCH_CLIENT_ID,
                     "client_secret": TWITCH_CLIENT_SECRET,
                     "grant_type": "refresh_token",
-                    "refresh_token": social_account.refresh_token
+                    "refresh_token": str(social_account.refresh_token)
                 }
             )
             
@@ -42,27 +44,30 @@ async def get_twitch_token(db: Session, user_id: str) -> str:
                 raise HTTPException(status_code=400, detail="Failed to refresh Twitch token")
                 
             token_data = response.json()
-            social_account.access_token = token_data["access_token"]
-            social_account.refresh_token = token_data["refresh_token"]
-            social_account.expires_at = datetime.utcnow() + timedelta(seconds=token_data["expires_in"])
+            db.execute(
+                update(SocialAccount)
+                .where(SocialAccount.id == social_account.id)
+                .values(
+                    access_token=token_data["access_token"],
+                    refresh_token=token_data["refresh_token"],
+                    expires_at=datetime.utcnow() + timedelta(seconds=token_data["expires_in"])
+                )
+            )
             db.commit()
+            return token_data["access_token"]
             
-    return social_account.access_token
+    return str(social_account.access_token)
 
 @router.post("/start")
 async def start_twitch_stream(
     stream_id: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
         
-    if stream.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
-    access_token = await get_twitch_token(db, current_user.id)
+    access_token = await get_twitch_token(db, "anonymous")
     
     async with httpx.AsyncClient() as client:
         # Get user channel info
@@ -113,10 +118,9 @@ async def start_twitch_stream(
 
 @router.post("/stop")
 async def stop_twitch_stream(
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    access_token = await get_twitch_token(db, current_user.id)
+    access_token = await get_twitch_token(db, "anonymous")
     
     async with httpx.AsyncClient() as client:
         headers = cast(Dict[str, str], {

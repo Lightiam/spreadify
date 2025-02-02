@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Form, Request
 from typing import Dict, Optional, List
+from sqlalchemy.orm import Session
+from sqlalchemy import update
 from ..db.models import Stream, Overlay
 from ..db.database import get_db
 from ..services.video_processor import VideoProcessor
-from ..auth import get_current_user
 import asyncio
 import uuid
 import os
 import logging
 from datetime import datetime
-from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +49,7 @@ class StreamKeyRequest(BaseModel):
 async def rtmp_connect(
     request: Request,
     stream_key_request: StreamKeyRequest,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     if not stream_key_request.stream_key:
         raise HTTPException(status_code=400, detail="Stream key is required")
@@ -91,15 +90,15 @@ async def rtmp_connect(
                 platform_result = None
                 if platform == "youtube":
                     from .streaming.youtube import start_youtube_stream
-                    platform_result = await start_youtube_stream(str(stream.id), db, request.current_user)
+                    platform_result = await start_youtube_stream(str(stream.id), db)
                     if "broadcast_id" in platform_result:
                         platform_streams["youtube_broadcast_id"] = platform_result["broadcast_id"]
                 elif platform == "twitch":
                     from .streaming.twitch import start_twitch_stream
-                    platform_result = await start_twitch_stream(str(stream.id), db, request.current_user)
+                    platform_result = await start_twitch_stream(str(stream.id), db)
                 elif platform == "facebook":
                     from .streaming.facebook import start_facebook_stream
-                    platform_result = await start_facebook_stream(str(stream.id), db, request.current_user)
+                    platform_result = await start_facebook_stream(str(stream.id), db)
                     if "stream_id" in platform_result:
                         platform_streams["facebook_live_id"] = platform_result["stream_id"]
                 
@@ -147,8 +146,14 @@ async def rtmp_connect(
         **{k: v for k, v in platform_streams.items() if k in ["youtube_broadcast_id", "facebook_live_id"]}
     }
     
-    stream.status = "live"
-    stream.started_at = datetime.utcnow()
+    db.execute(
+        update(Stream)
+        .where(Stream.id == stream.id)
+        .values(
+            status="live",
+            started_at=datetime.utcnow()
+        )
+    )
     db.commit()
     
     return {
@@ -162,8 +167,7 @@ async def rtmp_connect(
 async def rtmp_disconnect(
     request: Request,
     stream_key: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     if stream_key not in active_streams:
         raise HTTPException(
@@ -192,20 +196,26 @@ async def rtmp_disconnect(
                         # Stop platform-specific stream
                         if platform == "youtube" and "youtube_broadcast_id" in active_streams[stream_key]:
                             from .streaming.youtube import stop_youtube_stream
-                            await stop_youtube_stream(active_streams[stream_key]["youtube_broadcast_id"], db, request.current_user)
+                            await stop_youtube_stream(active_streams[stream_key]["youtube_broadcast_id"], db)
                         elif platform == "twitch":
                             from .streaming.twitch import stop_twitch_stream
-                            await stop_twitch_stream(db, request.current_user)
+                            await stop_twitch_stream(db)
                         elif platform == "facebook" and "facebook_live_id" in active_streams[stream_key]:
                             from .streaming.facebook import stop_facebook_stream
-                            await stop_facebook_stream(active_streams[stream_key]["facebook_live_id"], db, request.current_user)
+                            await stop_facebook_stream(active_streams[stream_key]["facebook_live_id"], db)
                     except Exception as e:
                         logger.error(f"Failed to stop {platform} stream: {str(e)}", exc_info=True)
         except Exception as e:
             logger.error(f"Error during platform cleanup: {str(e)}", exc_info=True)
         
-        stream.status = "ended"
-        stream.ended_at = datetime.utcnow()
+        db.execute(
+            update(Stream)
+            .where(Stream.id == stream.id)
+            .values(
+                status="ended",
+                ended_at=datetime.utcnow()
+            )
+        )
         db.commit()
     
     try:
@@ -232,8 +242,7 @@ async def update_viewer_count(
     request: Request,
     stream_key: str,
     viewer_count: ViewerCount,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     if stream_key not in active_streams:
         raise HTTPException(
@@ -244,16 +253,20 @@ async def update_viewer_count(
     if stream_key not in active_streams:
         raise HTTPException(status_code=404, detail="Stream not found")
     
-    # Verify stream ownership
+    # Check if stream exists
     stream = db.query(Stream).filter(Stream.stream_key == stream_key).first()
-    if not stream or stream.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    if not stream:
+        raise HTTPException(status_code=404, detail="Stream not found")
     
     active_streams[stream_key]["viewer_count"] = max(0, viewer_count.count)
     
     stream = db.query(Stream).filter(Stream.stream_key == stream_key).first()
     if stream:
-        stream.viewer_count = max(0, viewer_count.count)
+        db.execute(
+            update(Stream)
+            .where(Stream.id == stream.id)
+            .values(viewer_count=max(0, viewer_count.count))
+        )
         db.commit()
     
     return {"status": "success"}

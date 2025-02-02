@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 from dotenv import load_dotenv
-from .routes import auth, rtmp, schedules, overlays
+from .routes import auth, rtmp, schedules, overlays, channels, streams, chat, subscriptions
 from .db import init_db
 
 load_dotenv()
@@ -40,6 +40,10 @@ app.include_router(auth.router)
 app.include_router(rtmp.router)
 app.include_router(schedules.router)
 app.include_router(overlays.router)
+app.include_router(channels.router)
+app.include_router(streams.router)
+app.include_router(chat.router)
+app.include_router(subscriptions.router)
 
 # Mount static files for uploads
 os.makedirs("uploads/profile_pictures", exist_ok=True)

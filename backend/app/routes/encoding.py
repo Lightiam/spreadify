@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from typing import List, Dict, Optional
-from ..models import User, Stream
-from ..auth import get_current_user
-from ..database import db
+from sqlalchemy.orm import Session
+from ..db.database import get_db
+from ..db.models import Stream
+from ..db.init_mock_data import MOCK_USER_ID
 import asyncio
 import json
 from pydantic import BaseModel
@@ -59,7 +60,7 @@ async def transcode_stream(stream_id: str, profile: VideoProfile):
 async def start_transcoding(
     stream_id: str,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
     profiles: List[str] = ["720p", "480p", "360p"]  # Default profiles
 ):
     stream = await db.get_stream(stream_id)
@@ -68,7 +69,7 @@ async def start_transcoding(
     
     # Verify channel ownership
     channel = await db.get_channel(stream.channel_id)
-    if not channel or channel.owner_id != current_user.id:
+    if not channel or channel.owner_id != MOCK_USER_ID:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to transcode this stream"
@@ -89,7 +90,7 @@ async def start_transcoding(
 @router.get("/{stream_id}/status")
 async def get_transcoding_status(
     stream_id: str,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     stream = await db.get_stream(stream_id)
     if not stream:

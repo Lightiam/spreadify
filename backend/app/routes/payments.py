@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Optional
-from ..models import User
-from ..auth import get_current_user
-from ..database import db
+from sqlalchemy.orm import Session
+from ..db.database import get_db
+from ..db.models import ChatMessage, Stream
 import stripe
 import os
+from datetime import datetime
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/payments", tags=["payments"])
@@ -23,14 +24,14 @@ class SuperChatCreate(BaseModel):
 @router.post("/donate")
 async def create_donation(
     donation: DonationCreate,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     try:
         intent = stripe.PaymentIntent.create(
             amount=donation.amount,
             currency="usd",
             metadata={
-                "user_id": current_user.id,
+                "user_id": "anonymous",
                 "stream_id": donation.stream_id,
                 "type": "donation",
                 "message": donation.message
@@ -43,14 +44,14 @@ async def create_donation(
 @router.post("/super-chat")
 async def create_super_chat(
     super_chat: SuperChatCreate,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     try:
         intent = stripe.PaymentIntent.create(
             amount=super_chat.amount,
             currency="usd",
             metadata={
-                "user_id": current_user.id,
+                "user_id": "anonymous",
                 "stream_id": super_chat.stream_id,
                 "type": "super_chat",
                 "message": super_chat.message
@@ -61,7 +62,10 @@ async def create_super_chat(
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/webhook")
-async def stripe_webhook(payload: dict):
+async def stripe_webhook(
+    payload: dict,
+    db: Session = Depends(get_db)
+):
     try:
         event = stripe.Event.construct_from(payload, stripe.api_key)
         
@@ -71,22 +75,28 @@ async def stripe_webhook(payload: dict):
             
             # Update stream stats based on payment type
             if metadata.get("type") == "super_chat":
-                await db.store_chat_message(metadata["stream_id"], {
+                chat_message = {
                     "type": "super_chat",
-                    "username": metadata["user_id"],
-                    "message": metadata["message"],
-                    "amount": payment_intent.amount,
-                    "timestamp": payment_intent.created
-                })
+                    "username": metadata.get("user_id"),
+                    "message": metadata.get("message"),
+                    "amount": payment_intent.get("amount"),
+                    "timestamp": datetime.utcnow()
+                }
+                db.query(ChatMessage).filter(
+                    ChatMessage.stream_id == metadata.get("stream_id")
+                ).update(chat_message)
+                db.commit()
             
             # Store payment in analytics
-            await db.store_payment({
-                "type": metadata["type"],
-                "amount": payment_intent.amount,
-                "user_id": metadata["user_id"],
-                "stream_id": metadata["stream_id"],
-                "timestamp": payment_intent.created
-            })
+            payment = {
+                "type": metadata.get("type"),
+                "amount": payment_intent.get("amount"),
+                "user_id": metadata.get("user_id"),
+                "stream_id": metadata.get("stream_id"),
+                "timestamp": datetime.utcnow()
+            }
+            db.add(payment)
+            db.commit()
             
         return {"status": "success"}
     except Exception as e:
@@ -95,13 +105,13 @@ async def stripe_webhook(payload: dict):
 @router.post("/create-subscription")
 async def create_subscription(
     price_id: str,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     try:
         # Create a customer
         customer = stripe.Customer.create(
-            email=current_user.email,
-            metadata={"user_id": current_user.id}
+            email="dev@example.com",
+            metadata={"user_id": "anonymous"}
         )
         
         # Create subscription

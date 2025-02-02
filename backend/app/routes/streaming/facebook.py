@@ -8,8 +8,9 @@ from typing import Dict, Any, cast
 
 logger = logging.getLogger(__name__)
 
-from ...db import get_db
-from ...auth import get_current_user
+from sqlalchemy.orm import Session
+from ...db.database import get_db
+from ...db.init_mock_data import MOCK_USER_ID
 from ...db.models import SocialAccount, Stream
 
 router = APIRouter(prefix="/streaming/facebook", tags=["streaming"])
@@ -23,23 +24,19 @@ async def get_facebook_token(db: Session, user_id: str) -> str:
     if not social_account:
         raise HTTPException(status_code=400, detail="Facebook account not connected")
         
-    return social_account.access_token
+    return str(social_account.access_token)
 
 @router.post("/start")
 async def start_facebook_stream(
     stream_id: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
         
-    if stream.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
     try:
-        access_token = await get_facebook_token(db, current_user.id)
+        access_token = await get_facebook_token(db, "anonymous")
     except Exception as e:
         logger.error(f"Failed to get Facebook token: {str(e)}")
         raise HTTPException(
@@ -74,10 +71,9 @@ async def start_facebook_stream(
 @router.post("/stop/{live_video_id}")
 async def stop_facebook_stream(
     live_video_id: str,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    access_token = await get_facebook_token(db, current_user.id)
+    access_token = await get_facebook_token(db, "anonymous")
     
     async with httpx.AsyncClient() as client:
         response = await client.post(

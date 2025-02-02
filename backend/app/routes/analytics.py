@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, List, Optional
-from ..models import User, Stream
-from ..auth import get_current_user
-from ..database import db
+from sqlalchemy.orm import Session
+from ..db.models import Stream, Channel, ChatMessage
+from ..db.database import get_db
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 
@@ -25,21 +25,17 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 @router.get("/stream/{stream_id}/metrics", response_model=StreamMetrics)
 async def get_stream_metrics(
     stream_id: str,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    stream = await db.get_stream(stream_id)
+    stream = db.query(Stream).filter(Stream.id == stream_id).first()
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
     
-    # Verify channel ownership
-    channel = await db.get_channel(stream.channel_id)
-    if not channel or channel.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to view this stream's analytics"
-        )
+    channel = db.query(Channel).filter(Channel.id == stream.channel_id).first()
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
     
-    chat_messages = db.get_chat_messages(stream_id)
+    chat_messages = db.query(ChatMessage).filter(ChatMessage.stream_id == stream_id).all()
     platform_stats = stream.platform_stats
     
     total_viewers = sum(
@@ -88,24 +84,17 @@ async def get_stream_metrics(
 async def get_channel_analytics(
     channel_id: str,
     days: Optional[int] = 30,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    channel = await db.get_channel(channel_id)
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     
-    if channel.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to view this channel's analytics"
-        )
-    
     start_date = datetime.utcnow() - timedelta(days=days if days is not None else 30)
-    streams = [
-        stream for stream in db.streams.values()
-        if stream.channel_id == channel_id
-        and stream.created_at >= start_date
-    ]
+    streams = db.query(Stream).filter(
+        Stream.channel_id == channel_id,
+        Stream.created_at >= start_date
+    ).all()
     
     total_watch_time = sum(
         (stream.ended_at - stream.started_at).total_seconds()
@@ -119,7 +108,7 @@ async def get_channel_analytics(
         for payment in getattr(stream, "payments", [])
     )
     
-    subscribers = await db.get_channel_subscribers(channel_id)
+    subscribers = []  # Simplified: no subscribers in anonymous mode
     
     return {
         "total_streams": len(streams),
@@ -130,14 +119,14 @@ async def get_channel_analytics(
             stream.viewer_count for stream in streams
         ) // len(streams) if streams else 0,
         "total_chat_messages": sum(
-            len(db.get_chat_messages(stream.id))
+            db.query(ChatMessage).filter(ChatMessage.stream_id == stream.id).count()
             for stream in streams
         ),
         "streams": [
             {
                 "id": stream.id,
                 "title": stream.title,
-                "metrics": await get_stream_metrics(stream.id, current_user)
+                "metrics": await get_stream_metrics(stream.id)
             }
             for stream in streams
         ]
@@ -147,24 +136,17 @@ async def get_channel_analytics(
 async def get_channel_earnings(
     channel_id: str,
     days: Optional[int] = 30,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    channel = await db.get_channel(channel_id)
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     
-    if channel.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to view this channel's earnings"
-        )
-    
     start_date = datetime.utcnow() - timedelta(days=days if days is not None else 30)
-    streams = [
-        stream for stream in db.streams.values()
-        if stream.channel_id == channel_id
-        and stream.created_at >= start_date
-    ]
+    streams = db.query(Stream).filter(
+        Stream.channel_id == channel_id,
+        Stream.created_at >= start_date
+    ).all()
     
     earnings = {
         "donations": 0,

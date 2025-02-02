@@ -1,12 +1,8 @@
-from fastapi import APIRouter, WebSocket, Depends, HTTPException, status, WebSocketDisconnect
-from typing import List, Dict, Optional, Tuple
-from ..models import User
-from ..auth import get_current_user
-from ..database import db
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from typing import Dict, List, Tuple
 from datetime import datetime, timedelta
 import json
 import re
-import asyncio
 from pydantic import BaseModel
 
 # Rate limiting settings
@@ -42,14 +38,13 @@ def is_spam(message: str) -> bool:
 @router.websocket("/ws/{stream_id}")
 async def websocket_chat_endpoint(
     websocket: WebSocket,
-    stream_id: str,
-    current_user: User = Depends(get_current_user)
+    stream_id: str
 ):
     await websocket.accept()
     
     if stream_id not in chat_connections:
         chat_connections[stream_id] = []
-    chat_connections[stream_id].append((websocket, current_user.id))
+    chat_connections[stream_id].append((websocket, "anonymous"))
     
     try:
         while True:
@@ -58,23 +53,24 @@ async def websocket_chat_endpoint(
             
             # Rate limiting check
             now = datetime.utcnow()
-            if current_user.id not in message_timestamps:
-                message_timestamps[current_user.id] = []
+            user_id = "anonymous"
+            if user_id not in message_timestamps:
+                message_timestamps[user_id] = []
             
             # Remove old timestamps
-            message_timestamps[current_user.id] = [
-                ts for ts in message_timestamps[current_user.id]
+            message_timestamps[user_id] = [
+                ts for ts in message_timestamps[user_id]
                 if now - ts < timedelta(seconds=RATE_WINDOW)
             ]
             
-            if len(message_timestamps[current_user.id]) >= RATE_LIMIT:
+            if len(message_timestamps[user_id]) >= RATE_LIMIT:
                 await websocket.send_text(json.dumps({
                     "type": "error",
                     "message": f"Rate limit exceeded. Please wait {RATE_WINDOW} seconds."
                 }))
                 continue
             
-            message_timestamps[current_user.id].append(now)
+            message_timestamps[user_id].append(now)
             msg_content = message.get("message", "")
             
             # Check if message is spam
@@ -107,101 +103,40 @@ async def websocket_chat_endpoint(
             # Create chat message
             chat_message = {
                 "type": "chat",
-                "user_id": current_user.id,
-                "username": current_user.username,
+                "user_id": "anonymous",
+                "username": "Anonymous User",
                 "message": message.get("message", ""),
                 "timestamp": datetime.utcnow().isoformat()
             }
             
-            # Store message
-            await db.store_chat_message(stream_id, chat_message)
+            # No message storage in simplified version
             
             # Broadcast to non-blocked clients
-            for connection, user_id in chat_connections[stream_id]:
-                if not await db.is_user_blocked(user_id, current_user.id):
-                    await connection.send_text(json.dumps(chat_message))
+            for connection, _ in chat_connections[stream_id]:
+                await connection.send_text(json.dumps(chat_message))
     except WebSocketDisconnect:
         if stream_id in chat_connections:
-            chat_connections[stream_id].remove((websocket, current_user.id))
+            chat_connections[stream_id].remove((websocket, "anonymous"))
             if not chat_connections[stream_id]:
                 del chat_connections[stream_id]
-            
-            # Notify other users
-            for conn, _ in chat_connections.get(stream_id, []):
-                try:
-                    await conn.send_text(json.dumps({
-                        "type": "system",
-                        "message": f"{current_user.username} left the chat"
-                    }))
-                except:
-                    pass
     except Exception as e:
         if stream_id in chat_connections:
-            chat_connections[stream_id].remove((websocket, current_user.id))
+            chat_connections[stream_id].remove((websocket, "anonymous"))
             if not chat_connections[stream_id]:
                 del chat_connections[stream_id]
-        print(f"Chat error: {str(e)}")
 
 @router.post("/commands")
-async def create_chat_command(
-    command: ChatCommand,
-    current_user: User = Depends(get_current_user)
-):
-    if not current_user.is_moderator:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only moderators can create chat commands"
-        )
-    
+async def create_chat_command(command: ChatCommand):
     if not command.name.startswith("!"):
         command.name = "!" + command.name
-        
     chat_commands[command.name] = command
     return command
 
 @router.delete("/commands/{command_name}")
-async def delete_chat_command(
-    command_name: str,
-    current_user: User = Depends(get_current_user)
-):
-    if not current_user.is_moderator:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only moderators can delete chat commands"
-        )
-        
+async def delete_chat_command(command_name: str):
     if not command_name.startswith("!"):
         command_name = "!" + command_name
-        
     if command_name in chat_commands:
         del chat_commands[command_name]
         return {"status": "success"}
     raise HTTPException(status_code=404, detail="Command not found")
-
-@router.post("/{stream_id}/block")
-async def block_user(
-    stream_id: str,
-    blocked_user_id: str,
-    current_user: User = Depends(get_current_user)
-):
-    stream = await db.get_stream(stream_id)
-    if not stream:
-        raise HTTPException(status_code=404, detail="Stream not found")
-    
-    # Block user
-    await db.block_user(current_user.id, blocked_user_id)
-    return {"status": "success"}
-
-@router.post("/{stream_id}/unblock")
-async def unblock_user(
-    stream_id: str,
-    blocked_user_id: str,
-    current_user: User = Depends(get_current_user)
-):
-    stream = await db.get_stream(stream_id)
-    if not stream:
-        raise HTTPException(status_code=404, detail="Stream not found")
-    
-    # Unblock user
-    await db.unblock_user(current_user.id, blocked_user_id)
-    return {"status": "success"}

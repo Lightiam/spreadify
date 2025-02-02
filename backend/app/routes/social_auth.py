@@ -5,8 +5,9 @@ import httpx
 from datetime import datetime, timedelta
 import os
 
-from ..db import get_db, User, SocialAccount
-from ..auth import create_access_token
+from ..db.database import get_db
+from ..db.models import SocialAccount
+from ..db.init_mock_data import MOCK_USER_ID
 
 router = APIRouter(prefix="/auth/social", tags=["social"])
 
@@ -60,7 +61,7 @@ async def facebook_login(
         db.flush()
         
         social_account = SocialAccount(
-            user_id=user.id,
+            user_id=MOCK_USER_ID,
             provider="facebook",
             provider_user_id=user_data["id"],
             access_token=access_token,
@@ -97,7 +98,7 @@ async def twitter_login(
         db.flush()
         
         social_account = SocialAccount(
-            user_id=user.id,
+            user_id=MOCK_USER_ID,
             provider="twitter",
             provider_user_id=user_data["data"]["id"],
             access_token=access_token

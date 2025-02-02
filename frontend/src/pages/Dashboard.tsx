@@ -7,7 +7,6 @@ import { Textarea } from "../components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { toast } from "sonner";
 import { Channel, Stream } from "../types";
-import { channels, streams } from "../lib/api";
 import { formatDate, formatViewCount } from "../lib/utils";
 
 export default function Dashboard() {

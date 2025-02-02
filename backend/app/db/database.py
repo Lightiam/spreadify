@@ -20,9 +20,5 @@ def get_db():
         db.close()
 
 def init_db():
-    """Initialize database and create mock user if needed"""
+    """Initialize database with tables"""
     Base.metadata.create_all(bind=engine)
-    
-    # Initialize mock data
-    from .init_mock_data import init_mock_data
-    init_mock_data()

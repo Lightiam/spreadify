@@ -1,46 +1,69 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import List
-from ..models import Channel, ChannelCreate, User, ChannelSettings
-from ..auth import get_current_user
-from ..database import db
+from sqlalchemy.orm import Session
+from ..db.models import Channel as DBChannel, ChannelSettings as DBChannelSettings
+from ..db.database import get_db
+from pydantic import BaseModel
 import uuid
 from datetime import datetime
 import os
 import aiofiles
+
+class ChannelSettings(BaseModel):
+    monetization_enabled: bool = False
+    subscription_price: int | None = None
+    minimum_donation: int | None = None
+    
+    class Config:
+        from_attributes = True
+
+class Channel(BaseModel):
+    id: str
+    name: str
+    description: str | None = None
+    profile_picture_url: str | None = None
+    owner_id: str
+    created_at: datetime
+    settings: ChannelSettings | None = None
+    
+    class Config:
+        from_attributes = True
+
+class ChannelCreate(BaseModel):
+    name: str
+    description: str | None = None
+    profile_picture_url: str | None = None
 
 router = APIRouter(prefix="/channels", tags=["channels"])
 
 @router.post("", response_model=Channel)
 async def create_channel(
     channel_data: ChannelCreate,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    # Check if user already has maximum allowed channels (e.g., 5)
-    user_channels = await db.get_user_channels(current_user.id)
-    if len(user_channels) >= 5:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Maximum number of channels reached"
-        )
+    # No channel limit in simplified version
     
-    channel = Channel(
+    channel = DBChannel(
         id=str(uuid.uuid4()),
         name=channel_data.name,
         description=channel_data.description,
         profile_picture_url=channel_data.profile_picture_url,
-        owner_id=current_user.id,
+        owner_id="anonymous",
         created_at=datetime.utcnow(),
-        settings=ChannelSettings()  # Default settings
+        settings=DBChannelSettings()  # Default settings
     )
-    return await db.create_channel(channel)
+    db.add(channel)
+    db.commit()
+    db.refresh(channel)
+    return channel
 
 @router.get("/me", response_model=List[Channel])
-async def get_my_channels(current_user: User = Depends(get_current_user)):
-    return await db.get_user_channels(current_user.id)
+async def get_my_channels(db: Session = Depends(get_db)):
+    return db.query(Channel).all()
 
 @router.get("/{channel_id}", response_model=Channel)
-async def get_channel(channel_id: str):
-    channel = await db.get_channel(channel_id)
+async def get_channel(channel_id: str, db: Session = Depends(get_db)):
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     return channel
@@ -49,13 +72,12 @@ async def get_channel(channel_id: str):
 async def update_channel_settings(
     channel_id: str,
     settings: ChannelSettings,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    channel = await db.get_channel(channel_id)
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
-    if channel.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to update this channel")
+    # Anyone can update channel settings in simplified version
     
     # Validate monetization settings
     if settings.monetization_enabled:
@@ -70,20 +92,20 @@ async def update_channel_settings(
                 detail="Minimum donation must be at least $1"
             )
     
-    await db.update_channel(channel_id, {"settings": settings})
+    db.query(Channel).filter(Channel.id == channel_id).update({"settings": settings})
+    db.commit()
     return {"status": "success"}
 
 @router.post("/{channel_id}/profile-picture")
 async def upload_profile_picture(
     channel_id: str,
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    channel = await db.get_channel(channel_id)
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
-    if channel.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to update this channel")
+    # Anyone can update profile picture in simplified version
     
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(
@@ -127,20 +149,21 @@ async def upload_profile_picture(
         await f.write(content)
     
     profile_picture_url = f"/uploads/profile_pictures/{file_name}"
-    await db.update_channel(channel_id, {"profile_picture_url": profile_picture_url})
+    db.query(Channel).filter(Channel.id == channel_id).update({"profile_picture_url": profile_picture_url})
+    db.commit()
     
     return {"profile_picture_url": profile_picture_url}
 
 @router.delete("/{channel_id}")
 async def delete_channel(
     channel_id: str,
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
-    channel = await db.get_channel(channel_id)
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
-    if channel.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to delete this channel")
+    # Anyone can delete channels in simplified version
     
-    await db.delete_channel(channel_id)
+    db.delete(channel)
+    db.commit()
     return {"message": "Channel deleted successfully"}

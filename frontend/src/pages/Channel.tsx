@@ -144,7 +144,6 @@ export default function Channel() {
               </div>
             </DialogContent>
           </Dialog>
-        )}
 
         <ScheduleStreamDialog
           channelId={id!}
@@ -159,19 +158,6 @@ export default function Channel() {
           onOpenChange={setShowDonateDialog}
         />
       </div>
-
-      <ScheduleStreamDialog
-        channelId={id!}
-        open={showScheduleDialog}
-        onOpenChange={setShowScheduleDialog}
-        onScheduled={fetchData}
-      />
-
-      <DonateDialog
-        channelId={id!}
-        open={showDonateDialog}
-        onOpenChange={setShowDonateDialog}
-      />
 
       <div className="mt-8">
         <ChannelAnalytics channelId={id!} />

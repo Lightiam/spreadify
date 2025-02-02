@@ -7,9 +7,7 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from app.db.database import init_db, SessionLocal
-from app.db.models import User
-from app.auth import get_password_hash
-import uuid
+from app.db.models import Channel, ChannelSettings, Stream
 
 if __name__ == "__main__":
     # Remove existing database if it exists
@@ -20,16 +18,33 @@ if __name__ == "__main__":
     # Initialize database with all tables
     init_db()
     
-    # Create test user
+    # Create test channel
     db = SessionLocal()
-    test_user = User(
-        id=uuid.uuid4(),
-        email="test@example.com",
-        username="testuser",
-        password_hash=get_password_hash("test123")
+    channel = Channel(
+        name="Test Channel",
+        description="A test channel for development",
+        owner_id="anonymous"
     )
-    db.add(test_user)
+    db.add(channel)
+    db.commit()
+    db.refresh(channel)
+    
+    # Create channel settings
+    settings = ChannelSettings(
+        channel_id=channel.id,
+        monetization_enabled=False
+    )
+    db.add(settings)
+    
+    # Create test stream
+    stream = Stream(
+        title="Test Stream",
+        description="A test stream for development",
+        channel_id=channel.id,
+        owner_id="anonymous"
+    )
+    db.add(stream)
     db.commit()
     db.close()
     
-    print("Database initialized successfully with test user")
+    print("Database initialized successfully with test data")
