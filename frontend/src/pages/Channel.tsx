@@ -5,8 +5,8 @@ import { Channel as ChannelType, Stream } from "../types";
 import { channels, streams } from "../lib/api";
 import { formatDate, formatViewCount } from "../lib/utils";
 import { Button } from "../components/ui/button";
-
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import SocialChannels from "../components/channels/SocialChannels";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
@@ -218,6 +218,17 @@ export default function Channel() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Social Channels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SocialChannels channelId={id!} />
           </CardContent>
         </Card>
       </div>

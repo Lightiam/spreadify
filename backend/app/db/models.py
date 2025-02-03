@@ -32,6 +32,7 @@ class Channel(Base):
     
     streams = relationship("Stream", back_populates="channel")
     settings = relationship("ChannelSettings", back_populates="channel", uselist=False)
+    social_channels = relationship("SocialChannel", back_populates="channel")
 
 class Stream(Base):
     __tablename__ = "streams"
@@ -81,3 +82,14 @@ class Overlay(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     
     stream = relationship("Stream", back_populates="overlays")
+
+class SocialChannel(Base):
+    __tablename__ = "social_channels"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    channel_id = Column(String, ForeignKey("channels.id"))
+    platform = Column(String)
+    link = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    channel = relationship("Channel", back_populates="social_channels")

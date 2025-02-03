@@ -1,5 +1,5 @@
 from .database import get_db, init_db
-from .models import Base, Channel, Stream, ChatMessage, Overlay, ChannelSettings
+from .models import Base, Channel, Stream, ChatMessage, Overlay, ChannelSettings, SocialChannel
 
 __all__ = [
     'get_db',
@@ -9,5 +9,6 @@ __all__ = [
     'Stream',
     'ChatMessage',
     'Overlay',
-    'ChannelSettings'
+    'ChannelSettings',
+    'SocialChannel'
 ]

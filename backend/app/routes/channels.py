@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from typing import List
 from sqlalchemy.orm import Session
-from ..db.models import Channel as DBChannel, ChannelSettings as DBChannelSettings
+from ..db.models import Channel as DBChannel, ChannelSettings as DBChannelSettings, SocialChannel as DBSocialChannel
 from ..db.database import get_db
+from ..schemas.social_channels import SocialChannelCreate, SocialChannelRead
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
@@ -59,11 +60,11 @@ async def create_channel(
 
 @router.get("/me", response_model=List[Channel])
 async def get_my_channels(db: Session = Depends(get_db)):
-    return db.query(Channel).all()
+    return db.query(DBChannel).all()
 
 @router.get("/{channel_id}", response_model=Channel)
 async def get_channel(channel_id: str, db: Session = Depends(get_db)):
-    channel = db.query(Channel).filter(Channel.id == channel_id).first()
+    channel = db.query(DBChannel).filter(DBChannel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     return channel
@@ -74,7 +75,7 @@ async def update_channel_settings(
     settings: ChannelSettings,
     db: Session = Depends(get_db)
 ):
-    channel = db.query(Channel).filter(Channel.id == channel_id).first()
+    channel = db.query(DBChannel).filter(DBChannel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     # Anyone can update channel settings in simplified version
@@ -92,7 +93,7 @@ async def update_channel_settings(
                 detail="Minimum donation must be at least $1"
             )
     
-    db.query(Channel).filter(Channel.id == channel_id).update({"settings": settings})
+    db.query(DBChannel).filter(DBChannel.id == channel_id).update({"settings": settings})
     db.commit()
     return {"status": "success"}
 
@@ -102,7 +103,7 @@ async def upload_profile_picture(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    channel = db.query(Channel).filter(Channel.id == channel_id).first()
+    channel = db.query(DBChannel).filter(DBChannel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     # Anyone can update profile picture in simplified version
@@ -149,7 +150,7 @@ async def upload_profile_picture(
         await f.write(content)
     
     profile_picture_url = f"/uploads/profile_pictures/{file_name}"
-    db.query(Channel).filter(Channel.id == channel_id).update({"profile_picture_url": profile_picture_url})
+    db.query(DBChannel).filter(DBChannel.id == channel_id).update({"profile_picture_url": profile_picture_url})
     db.commit()
     
     return {"profile_picture_url": profile_picture_url}
@@ -159,7 +160,7 @@ async def delete_channel(
     channel_id: str,
     db: Session = Depends(get_db)
 ):
-    channel = db.query(Channel).filter(Channel.id == channel_id).first()
+    channel = db.query(DBChannel).filter(DBChannel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     # Anyone can delete channels in simplified version
@@ -167,3 +168,42 @@ async def delete_channel(
     db.delete(channel)
     db.commit()
     return {"message": "Channel deleted successfully"}
+
+@router.post("/{channel_id}/social-channels", response_model=SocialChannelRead)
+async def create_social_channel(
+    channel_id: str,
+    payload: SocialChannelCreate,
+    db: Session = Depends(get_db)
+):
+    channel = db.query(DBChannel).filter(DBChannel.id == channel_id).first()
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
+    
+    social_channel = DBSocialChannel(
+        channel_id=channel_id,
+        platform=payload.platform,
+        link=str(payload.link)
+    )
+    db.add(social_channel)
+    db.commit()
+    db.refresh(social_channel)
+    return social_channel
+
+@router.get("/{channel_id}/social-channels", response_model=List[SocialChannelRead])
+async def list_social_channels(
+    channel_id: str,
+    db: Session = Depends(get_db)
+):
+    return db.query(DBSocialChannel).filter(DBSocialChannel.channel_id == channel_id).all()
+
+@router.delete("/social-channels/{social_channel_id}")
+async def remove_social_channel(
+    social_channel_id: str,
+    db: Session = Depends(get_db)
+):
+    sc = db.query(DBSocialChannel).filter(DBSocialChannel.id == social_channel_id).first()
+    if not sc:
+        raise HTTPException(status_code=404, detail="Social channel not found")
+    db.delete(sc)
+    db.commit()
+    return {"detail": "Deleted"}
