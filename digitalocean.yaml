@@ -1,4 +1,4 @@
-name: spreadify-app
+name: lightsms-app
 region: nyc
 services:
   - name: web
@@ -32,7 +32,7 @@ services:
       http_path: /health
 databases:
   - engine: PG
-    name: spreadify-db
+    name: lightsms-db
     num_nodes: 1
     size: db-s-dev-database
     version: "12"

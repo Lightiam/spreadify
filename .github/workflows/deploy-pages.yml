@@ -31,7 +31,7 @@ jobs:
           
           export default defineConfig({
             plugins: [react()],
-            base: "/spreadify/",
+            base: "/lightsms/",
           })' > vite.config.ts
       - name: Build
         run: npm run build
