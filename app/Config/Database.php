@@ -33,9 +33,9 @@ class Database extends Config
 	public $default = [
 		'DSN'      => '',
 		'hostname' => 'localhost',
-		'username' => 'spreadify_user',
+		'username' => 'lightsms_user',
 		'password' => 'securepassword',
-		'database' => 'spreadify_db',
+		'database' => 'lightsms_db',
 		'DBDriver' => 'Postgre',
 		'port'     => 5432,
 		'DBPrefix' => '',

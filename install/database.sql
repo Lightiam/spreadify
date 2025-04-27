@@ -52,7 +52,7 @@ VALUES ('ADMIN_IDS', 'ADMIN_FULLNAME', 'ADMIN_USERNAME', 'ADMIN_EMAIL', 'ADMIN_P
 
 -- Insert default options
 INSERT INTO sp_options (name, value) VALUES
-('website_title', 'Spreadify'),
+('website_title', 'LightSMS'),
 ('website_description', 'Social Marketing Tool'),
 ('website_keywords', 'social media, marketing, automation'),
 ('website_favicon', '/assets/img/favicon.png'),
