@@ -21,11 +21,13 @@
 		"yidas/csv": "^1.0",
 		"dompdf/dompdf": "^2.0",
 		"coderjerk/bird-elephant": "*",
-		"mpdf/mpdf": "^8.1"
+		"mpdf/mpdf": "^8.1",
+		"kreait/firebase-php": "^5.0",
+		"twilio/sdk": "^6.0"
 	},
 	"config": {
 		"platform": {
-            "php": "8.0.0"
+            "php": "8.1.0"
         },
         "platform-check": false
     },
